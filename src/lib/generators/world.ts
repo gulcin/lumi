@@ -47,7 +47,7 @@ const BANK: BankQ[] = [
   { q: "A rainforest is usually…", choices: ["Warm and wet", "Frozen all year", "Under the sea"], answer: 0, domains: ["Rainforests"], keywords: ["rainforest"], minAge: 5, maxAge: 10, explain: "Rainforests get a lot of rain and stay warm." },
   { q: "Which food first grew in rainforest regions?", choices: ["Cocoa", "Ice cubes", "Snow"], answer: 0, domains: ["Rainforests"], keywords: ["food", "cocoa", "banana"], minAge: 6, maxAge: 10, explain: "Cocoa, which we use for chocolate, comes from rainforest cacao trees." },
   { q: "The ocean is…", choices: ["Salty water", "Made of sand only", "A kind of cloud"], answer: 0, domains: ["Ocean Life"], keywords: ["ocean", "sea"], minAge: 5, maxAge: 8, explain: "Oceans are huge bodies of salty water." },
-  { q: "A whale is a…", choices: ["Mammal", "Fish", "Insect"], answer: 0, domains: ["Ocean Life", "Animals of the World"], keywords: ["whale", "dolphin", "mammal"], minAge: 6, explain: "Whales and dolphins are mammals. They breathe air and feed milk to their babies." },
+  { q: "A whale is a…", choices: ["Mammal", "Fish", "Insect"], answer: 0, domains: ["Ocean Life", "Animals of the World"], keywords: ["whale", "mammal"], minAge: 6, explain: "Whales are mammals. They breathe air and feed milk to their babies." },
   { q: "Which place might you find in a rock pool?", choices: ["A crab", "A polar bear", "A camel"], answer: 0, domains: ["Ocean Life"], keywords: ["rock pool", "coast", "crab"], minAge: 5, maxAge: 9, explain: "Crabs, anemones, and shells often live in rock pools." },
   { q: "Dinosaurs lived…", choices: ["Long before people", "In the same houses as us", "Only in storybooks, never for real"], answer: 0, domains: ["Dinosaurs & Paleontology"], keywords: ["dinosaur"], minAge: 5, maxAge: 9, explain: "Dinosaurs were real animals. They died out long before people lived." },
   { q: "Fossils are…", choices: ["Preserved remains or traces of living things", "New plastic toys", "Clouds"], answer: 0, domains: ["Dinosaurs & Paleontology"], keywords: ["fossil"], minAge: 6, explain: "Fossils form when remains or traces are preserved in rock." },
@@ -67,15 +67,21 @@ const BANK: BankQ[] = [
   { q: "A shadow forms when…", choices: ["An object blocks light", "Sound is loud", "Water freezes"], answer: 0, domains: ["Waves, Light & Sound"], keywords: ["shadow", "light"], minAge: 6, explain: "Light travels in straight lines. A solid object can block it and leave a shadow." },
   { q: "Sound is made by…", choices: ["Vibrations", "Silence", "Only magnets"], answer: 0, domains: ["Waves, Light & Sound"], keywords: ["sound", "vibrat"], minAge: 6, explain: "Vibrations shake the air, and our ears hear that as sound." },
   { q: "A transparent material…", choices: ["Lets most light through", "Blocks all light", "Makes sound disappear"], answer: 0, domains: ["Waves, Light & Sound", "Matter & Materials"], keywords: ["transparent", "translucent", "opaque"], minAge: 7, explain: "You can see clearly through transparent materials, like clean glass." },
-  { q: "Sunlight can…", choices: ["Warm things up", "Freeze a pond by itself", "Turn off gravity"], answer: 0, domains: ["Energy"], keywords: ["sun", "warm", "energy"], minAge: 5, maxAge: 9, explain: "Sunlight carries energy that warms the ground, water, and you." },
-  { q: "Which is a form of energy?", choices: ["Light", "A surname", "A Tuesday"], answer: 0, domains: ["Energy"], keywords: ["energy"], minAge: 8, explain: "Light, heat, sound, and movement are forms of energy." },
+  { q: "Sunlight can…", choices: ["Warm things up", "Freeze a pond by itself", "Turn off gravity"], answer: 0, domains: ["Energy"], keywords: ["sunlight", "warm"], minAge: 5, maxAge: 9, explain: "Sunlight carries energy that warms the ground, water, and you." },
+  { q: "Which of these needs electricity?", choices: ["A lamp", "A wooden spoon", "A pebble"], answer: 0, domains: ["Energy"], keywords: ["electric"], minAge: 6, maxAge: 10, explain: "A lamp needs electricity. A wooden spoon and a pebble do not." },
+  { q: "A circuit works when electricity can travel in a…", choices: ["Complete loop", "Broken gap", "Storybook"], answer: 0, domains: ["Energy"], keywords: ["circuit"], minAge: 7, maxAge: 10, explain: "Electricity needs a complete loop. A gap in the circuit stops the flow." },
+  { q: "Which material lets electricity pass?", choices: ["A metal wire", "A rubber boot", "A wooden spoon"], answer: 0, domains: ["Energy"], keywords: ["conductor", "insulator"], minAge: 7, maxAge: 10, explain: "Metal is a conductor, so electricity can pass. Rubber and wood are insulators." },
+  { q: "A switch can turn a circuit…", choices: ["On or off", "Into soup", "Into a moon"], answer: 0, domains: ["Energy"], keywords: ["switch"], minAge: 7, maxAge: 10, explain: "A switch opens or closes a gap, so the circuit turns on or off." },
+  { q: "A bulb lights when its circuit is…", choices: ["Complete", "Broken", "Made of paper only"], answer: 0, domains: ["Energy"], keywords: ["bulb", "lamp"], minAge: 7, maxAge: 10, explain: "The bulb lights when electricity can go all the way around the circuit." },
+  { q: "Heat and light are both kinds of…", choices: ["Energy", "Furniture", "Weather"], answer: 0, domains: ["Energy"], keywords: ["heat", "light"], minAge: 7, maxAge: 11, explain: "Heat and light are kinds of energy." },
+  { q: "Which is a form of energy?", choices: ["Light", "A surname", "A Tuesday"], answer: 0, domains: ["Energy"], keywords: ["energy"], minAge: 7, maxAge: 9, explain: "Light, heat, sound, and movement are forms of energy." },
   { q: "A fair test changes…", choices: ["Only one thing at a time", "Every thing at once", "Nothing, ever"], answer: 0, domains: ["Scientific Inquiry"], keywords: ["test", "fair", "experiment"], minAge: 7, explain: "If you change only one thing, you can tell what caused the result." },
   { q: "Observing means…", choices: ["Looking carefully and noticing", "Guessing with your eyes shut", "Copying a story"], answer: 0, domains: ["Scientific Inquiry"], keywords: ["observ"], minAge: 5, maxAge: 9, explain: "Scientists observe with their senses and with tools, then record what they notice." },
   { q: "Which question could science test?", choices: ["Which cup keeps water warm longer?", "Which colour is the prettiest?", "Which story is the funniest?"], answer: 0, domains: ["Scientific Inquiry"], keywords: ["question"], minAge: 7, explain: "You can measure temperature. Prettiest and funniest are opinions." },
   { q: "The great pyramids were built in…", choices: ["Ancient Egypt", "The Arctic Ocean", "Last Tuesday"], answer: 0, domains: ["Ancient Egypt"], keywords: ["pyramid", "egypt"], minAge: 6, explain: "The famous stone pyramids were tombs built in ancient Egypt." },
   { q: "The river that runs through Egypt is the…", choices: ["Nile", "Vltava", "Amazon"], answer: 0, domains: ["Ancient Egypt"], keywords: ["nile", "river"], minAge: 7, explain: "The Nile gave ancient Egypt water for farms and travel." },
   { q: "A pharaoh was…", choices: ["A ruler of ancient Egypt", "A kind of tram", "A polar animal"], answer: 0, domains: ["Ancient Egypt"], keywords: ["pharaoh", "ruler"], minAge: 7, explain: "Pharaohs were the kings and queens of ancient Egypt." },
-  { q: "Hieroglyphs were…", choices: ["A way of writing with pictures and symbols", "A type of volcano", "A musical instrument"], answer: 0, domains: ["Ancient Egypt"], keywords: ["hieroglyph", "writing"], minAge: 7, explain: "Ancient Egyptians wrote with hieroglyphs." },
+  { q: "Hieroglyphs were…", choices: ["A way of writing with pictures and symbols", "A type of volcano", "A musical instrument"], answer: 0, domains: ["Ancient Egypt"], keywords: ["hieroglyph"], minAge: 7, explain: "Ancient Egyptians wrote with hieroglyphs." },
   { q: "The Olympic Games began in…", choices: ["Ancient Greece", "A space station", "A rainforest canopy"], answer: 0, domains: ["Ancient Greece & Rome"], keywords: ["olympic", "greece"], minAge: 7, explain: "The ancient Olympics were held at Olympia in Greece." },
   { q: "Athens is a city famous in…", choices: ["Ancient Greece", "The story of dinosaurs", "The centre of the Sun"], answer: 0, domains: ["Ancient Greece & Rome"], keywords: ["athens", "greece"], minAge: 7, explain: "Athens was a powerful city in ancient Greece." },
   { q: "The Colosseum is in…", choices: ["Rome", "The Moon", "Antarctica"], answer: 0, domains: ["Ancient Greece & Rome"], keywords: ["rome", "colosseum"], minAge: 7, explain: "The Colosseum is a huge ancient amphitheatre in Rome." },
@@ -87,20 +93,53 @@ const BANK: BankQ[] = [
   { q: "A computer follows…", choices: ["Instructions", "Only dreams", "The weather by magic"], answer: 0, domains: ["Artificial Intelligence"], keywords: ["computer", "instruction", "program"], minAge: 7, explain: "Programs are instructions. A computer does what those instructions say." },
 ];
 
+/** Civilisation or subject labels that match too many skills. */
+const BROAD = new Set("egypt greece rome writing energy ancient".split(" "));
+
+function stemWord(word: string): string {
+  const lower = word.toLowerCase();
+  if (lower.endsWith("s") && !lower.endsWith("ss") && lower.length > 4) return lower.slice(0, -1);
+  return lower;
+}
+
+function textTokens(text: string): string[] {
+  return text.toLowerCase().split(/[^a-z]+/).filter(Boolean).map(stemWord);
+}
+
 function hasWord(text: string, word: string): boolean {
-  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`\\b${escaped}\\b`, "i").test(text);
+  const target = stemWord(word);
+  const parts = textTokens(text);
+  if (parts.includes(target)) return true;
+  if (target.length >= 6) return parts.some((part) => part.startsWith(target));
+  return false;
+}
+
+function specificHit(topic: Topic, question: BankQ): boolean {
+  const topicText = `${topic.name} ${topic.description}`;
+  return (question.keywords ?? []).some((key) => {
+    if (key.length < 4 || BROAD.has(stemWord(key))) return false;
+    return hasWord(topicText, key);
+  });
+}
+
+function questionFits(topic: Topic, question: BankQ): boolean {
+  if (topic.ageRangeStart < 8) return true;
+  return specificHit(topic, question);
+}
+
+/** True when this world prompt belongs to the skill, not just its subject. */
+export function worldPromptFitsTopic(topic: Topic, prompt: string): boolean {
+  const question = BANK.find((item) => item.q === prompt);
+  if (!question || !question.domains.includes(topic.domain)) return false;
+  if (topic.ageRangeStart < 8) return true;
+  return specificHit(topic, question);
 }
 
 function scoreQuestion(topic: Topic, question: BankQ): number {
   if (!question.domains.includes(topic.domain)) return -1;
   if (topic.ageRangeEnd < question.minAge) return -1;
   if (question.maxAge != null && topic.ageRangeStart > question.maxAge) return -1;
-  const name = `${topic.name} ${topic.description}`;
-  let score = 3;
-  const keys = question.keywords ?? [];
-  if (keys.some((key) => hasWord(name, key))) score += 6;
-  return score;
+  return specificHit(topic, question) ? 9 : 3;
 }
 
 export function tryWorld(topic: Topic, rng: Rng): Exercise | null {
@@ -110,8 +149,8 @@ export function tryWorld(topic: Topic, rng: Rng): Exercise | null {
     .sort((a, b) => b.score - a.score);
   if (!ranked.length) return null;
   const best = ranked[0]!.score;
-  const keywordNeeded = topic.ageRangeStart >= 11;
-  const good = ranked.filter((row) => row.score >= best - 1 && row.score >= (keywordNeeded ? 6 : 3));
+  const keywordNeeded = topic.ageRangeStart >= 8;
+  const good = ranked.filter((row) => row.score >= best - 1 && row.score >= (keywordNeeded ? 6 : 3) && questionFits(topic, row.question));
   if (!good.length) return null;
   const choice = pick(rng, good.slice(0, Math.min(4, good.length))).question;
   return choiceExercise(topic, rng, "world", {

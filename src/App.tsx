@@ -62,6 +62,7 @@ export function App() {
   const [journalGrownup, setJournalGrownup] = useState(false);
   const [afterGate, setAfterGate] = useState<"parent" | "gplace">("parent");
   const kickSync = useRef<() => void>(() => {});
+  const auditRef = useRef<(topicId: string) => boolean>(() => false);
   const e2e = new URLSearchParams(window.location.search).has("e2e");
   const [kidNew, setKidNew] = useState(false);
 
@@ -179,6 +180,35 @@ export function App() {
       kickSync.current();
     }
   }
+
+  auditRef.current = (topicId: string) => {
+    if (!catalog?.byId.has(topicId)) return false;
+    const base = loadProgress();
+    commit({
+      ...base,
+      active: {
+        id: "audit",
+        mode: "topic",
+        topicId,
+        startedAt: 1,
+        items: [{ topicId, role: "practice", seed: 17 }],
+        index: 0,
+        correct: 0,
+        stars: 0,
+        newlyMastered: [],
+      },
+    });
+    setScreen("session");
+    return true;
+  };
+
+  useEffect(() => {
+    if (!e2e) return;
+    window.__lumiAudit = { start: (topicId: string) => auditRef.current(topicId) };
+    return () => {
+      delete window.__lumiAudit;
+    };
+  }, [e2e]);
 
   function toggleSpeech() {
     commit({ ...progress, speechOn: !progress.speechOn });

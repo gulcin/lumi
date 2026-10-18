@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { exerciseHint } from "../lib/exerciseHint";
 import type { Exercise } from "../lib/generators/types";
 import { VisualView } from "./Visuals";
 
@@ -18,9 +19,12 @@ export function ExerciseView({
       className="exercise"
       data-testid="exercise"
       data-kind={exercise.kind}
+      data-generator={exercise.generatorId}
+      data-topic={exercise.topicId}
       data-answer={e2e ? answerToken(exercise) : undefined}
     >
       <p className="prompt">{exercise.prompt}</p>
+      <Hint clue={exerciseHint(exercise)} />
       {exercise.visual?.type === "equation" && exercise.visual.text === exercise.prompt ? null : (
         <VisualView visual={exercise.visual} />
       )}
@@ -42,6 +46,22 @@ export function ExerciseView({
         <OrderAnswer key={exercise.id} exercise={exercise} disabled={disabled} onAnswer={onAnswer} />
       ) : null}
       {exercise.kind === "talk" ? <TalkAnswer exercise={exercise} disabled={disabled} onAnswer={onAnswer} /> : null}
+    </div>
+  );
+}
+
+function Hint({ clue }: { clue: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="hint-row">
+      <button type="button" className="hint-btn" data-testid="hint" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
+        Hint
+      </button>
+      {open ? (
+        <p className="hint-text" data-testid="hint-text">
+          {clue}
+        </p>
+      ) : null}
     </div>
   );
 }

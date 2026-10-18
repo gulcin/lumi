@@ -10,25 +10,33 @@ import { tryWorld } from "./world";
 export type { Exercise } from "./types";
 export { exerciseSpeak } from "./types";
 
-function childSentence(text: string): string {
-  const trimmed = text.replace(/\s+/g, " ").trim();
-  if (!trimmed) return "";
-  return trimmed.length > 220 ? `${trimmed.slice(0, 217)}…` : trimmed;
+function childPoint(line: string): string | null {
+  if (line.includes("(") || line.includes("&") || /research|hypothesis|theoretical|framework/i.test(line)) return null;
+  const text = line.replace(/\s+/g, " ").trim();
+  if (text.length < 8 || text.length > 120) return null;
+  const friendly = text.replace(/\btheir\b/gi, "your").replace(/\bthey\b/gi, "you");
+  const sentence = friendly.charAt(0).toUpperCase() + friendly.slice(1);
+  return /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+}
+
+function talkPointsFor(topic: Topic): string[] {
+  const source = topic.evidence.length ? topic.evidence : [topic.assessmentPrompt];
+  const points = source.map(childPoint).filter((line): line is string => line != null).slice(0, 3);
+  if (points.length) return points;
+  return ["What does this mean, in your own words?", "Where might you notice it?", "Tell a grown-up one example."];
 }
 
 export function talkCard(topic: Topic): Exercise {
-  const points = (topic.evidence.length ? topic.evidence : [topic.assessmentPrompt]).slice(0, 3);
-  const description = childSentence(topic.description);
+  const points = talkPointsFor(topic);
   return {
     id: `talk_${topic.id}`,
     topicId: topic.id,
     generatorId: "talk",
     kind: "talk",
     prompt: `Let's talk about ${topic.name}.`,
-    speak: `Let's talk about ${topic.name}. ${description}. Show a grown-up, and talk about one of the ideas.`,
+    speak: `Let's talk about ${topic.name}. ${points[0]} Show a grown-up.`,
     explain: "Lovely talking. That counts as a try.",
-    talkPoints: points.map(childSentence),
-    visual: { type: "equation", text: topic.domain },
+    talkPoints: points,
   };
 }
 

@@ -162,6 +162,21 @@ p { margin: 0.4em 0; }
   .with-lumi { grid-template-columns: 92px 1fr; align-items: start; }
 }
 .prompt { font-family: "Fredoka", sans-serif; font-size: clamp(1.35rem, 1.05rem + 0.8vw, 1.85rem); }
+.hint-row { margin: 2px 0 8px; }
+.hint-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: white;
+  font-weight: 800;
+  box-shadow: var(--shadow);
+  -webkit-tap-highlight-color: transparent;
+}
+.hint-btn:focus-visible { outline: 3px solid var(--teal); }
+.hint-text { margin: 6px 0 0; font-weight: 700; }
 .exercise, .feedback, .card {
   background: var(--card);
   border-radius: var(--radius);
@@ -497,4 +512,19 @@ html.update-waiting .shell { padding-bottom: 148px; }
 
 @media (prefers-reduced-motion: reduce) {
   .lumi-idle, .lumi-happy, .lumi-cheer, .confetti span { animation: none; }
+}
+
+@media (max-height: 900px) {
+  .lumi-side { width: 64px; }
+  .pad-grid { gap: 6px; }
+  .pad-grid button { min-height: 48px; font-size: 1.25rem; }
+  .pad-display { font-size: 1.7rem; padding: 2px; margin-bottom: 4px; }
+  .choice { min-height: 52px; }
+  .viz-clock, .viz-shape { width: 108px; margin: 2px auto; }
+  .exercise, .feedback { padding: 12px; }
+  .hint-row { margin: 0 0 4px; }
+  .pips { margin: 4px 0; }
+}
+@media (max-width: 700px) and (max-height: 900px) {
+  .with-lumi > .lumi-side { display: none; }
 }

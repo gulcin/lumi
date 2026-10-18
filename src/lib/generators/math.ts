@@ -419,9 +419,11 @@ function placeValue(topic: Topic, rng: Rng): Exercise {
     });
   }
   if (/compar|order/.test(n)) {
-    const values = shuffle(rng, [irand(rng, 10, 80), irand(rng, 10, 80), irand(rng, 10, 80)]);
-    const unique = [...new Set(values)];
-    while (unique.length < 3) unique.push(irand(rng, 10, 99));
+    const unique: number[] = [];
+    while (unique.length < 3) {
+      const next = irand(rng, 10, 99);
+      if (!unique.includes(next)) unique.push(next);
+    }
     const sorted = [...unique].sort((a, b) => a - b);
     return orderExercise(topic, rng, "place", {
       prompt: "Tap the numbers from smallest to largest.",
@@ -741,30 +743,28 @@ function algebra(topic: Topic, rng: Rng): Exercise {
   if (/like terms|collect/.test(n)) {
     const a = irand(rng, 2, 6);
     const b = irand(rng, 2, 6);
+    const correct = `${a + b}a`;
+    const wrongs = [`${a + b}`, `${a * b}a`, `${a}a + ${b}`, `${b}a + ${a}`].filter((label, index, all) => label !== correct && all.indexOf(label) === index);
     return choiceExercise(topic, rng, "algebra", {
       prompt: `Simplify ${a}a + ${b}a`,
       speak: `Simplify ${a} a plus ${b} a.`,
-      explain: `${a}a plus ${b}a is ${a + b}a.`,
+      explain: `${a}a plus ${b}a is ${correct}.`,
       visual: { type: "equation", text: `${a}a + ${b}a` },
-      choices: [
-        { label: `${a + b}a`, correct: true },
-        { label: `${a + b}`, correct: false },
-        { label: `${a * b}a`, correct: false },
-      ],
+      choices: [{ label: correct, correct: true }, ...wrongs.slice(0, 2).map((label) => ({ label, correct: false }))],
     });
   }
   if (/bracket|expand/.test(n)) {
     const m = irand(rng, 2, 5);
     const c = irand(rng, 1, 6);
+    const correct = `${m}x + ${m * c}`;
+    const wrongs = [`${m}x + ${c}`, `x + ${m * c}`, `${m}x + ${m + c}`, `${m + c}x`].filter(
+      (label, index, all) => label !== correct && all.indexOf(label) === index,
+    );
     return choiceExercise(topic, rng, "algebra", {
       prompt: `Expand ${m}(x + ${c})`,
       speak: `Expand ${m} times the bracket x plus ${c}.`,
       explain: `${m} times x is ${m}x, and ${m} times ${c} is ${m * c}.`,
-      choices: [
-        { label: `${m}x + ${m * c}`, correct: true },
-        { label: `${m}x + ${c}`, correct: false },
-        { label: `x + ${m * c}`, correct: false },
-      ],
+      choices: [{ label: correct, correct: true }, ...wrongs.slice(0, 2).map((label) => ({ label, correct: false }))],
     });
   }
   if (/graph|plot|coordinate/.test(n)) {
@@ -836,8 +836,16 @@ function data(topic: Topic, rng: Rng): Exercise {
     void answer;
   }
   const swans = irand(rng, 2, 8);
-  const trams = irand(rng, 2, 8);
-  const apples = irand(rng, 2, 8);
+  let trams = irand(rng, 2, 8);
+  let apples = irand(rng, 2, 8);
+  let guard = 0;
+  while ((trams === swans || apples === swans || apples === trams) && guard < 12) {
+    trams = irand(rng, 2, 9);
+    apples = irand(rng, 2, 9);
+    guard += 1;
+  }
+  if (trams === swans) trams = swans + 1;
+  if (apples === swans || apples === trams) apples = Math.max(swans, trams) + 1;
   const bars = [
     { label: "Swans", value: swans },
     { label: "Trams", value: trams },

@@ -68,8 +68,17 @@ export function choiceExercise(
   },
 ): Exercise {
   const tagged = fields.choices.map((choice, index) => ({ ...choice, id: `c${index}` }));
-  const correct = tagged.find((choice) => choice.correct) ?? tagged[0]!;
-  const choices: Choice[] = shuffle(rng, tagged).map((choice) => ({
+  const byLabel = new Map<string, (typeof tagged)[number]>();
+  for (const choice of tagged) {
+    const key = choice.label.trim().toLowerCase();
+    const previous = byLabel.get(key);
+    if (!previous || choice.correct) byLabel.set(key, choice);
+  }
+  let rows = [...byLabel.values()];
+  if (!rows.some((choice) => choice.correct) && rows[0]) rows = [{ ...rows[0], correct: true }, ...rows.slice(1)];
+  if (rows.length < 2) rows.push({ id: "c-extra", label: "Not quite", correct: false });
+  const correct = rows.find((choice) => choice.correct) ?? rows[0]!;
+  const choices: Choice[] = shuffle(rng, rows).map((choice) => ({
     id: choice.id,
     label: choice.label,
     emoji: choice.emoji,

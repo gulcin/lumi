@@ -40,6 +40,8 @@ jobs:
         run: npm run verify:type
       - name: Screen sanity
         run: npm run verify:screens
+      - name: Exercise audit
+        run: npm run verify:exercises
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

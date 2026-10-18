@@ -53,7 +53,8 @@ export function SessionScreen({
   const exercise: Exercise | null = item && topic ? exerciseFromSeed(topic, item.seed) : null;
   const themeId = topic ? catalog.pypMap?.topics[topic.id]?.theme : undefined;
   const inquiry = topic ? inquiryFor(topic, themeId) : null;
-  const showInquiry = Boolean(topic && inquiry && phase === "inquiry" && !seen.includes(topic.id));
+  const audit = active?.id === "audit";
+  const showInquiry = Boolean(!audit && topic && inquiry && phase === "inquiry" && !seen.includes(topic.id));
   const line = showInquiry
     ? inquiry?.spoken ?? ""
     : phase === "reflect"
@@ -70,10 +71,15 @@ export function SessionScreen({
 
   useEffect(() => {
     if (!topic) return;
+    if (active?.id === "audit") {
+      setPhase("ask");
+      setFeedback(null);
+      return;
+    }
     if (!seen.includes(topic.id)) setPhase("inquiry");
     else setPhase("ask");
     setFeedback(null);
-  }, [active?.index, seen, topic]);
+  }, [active?.id, active?.index, seen, topic]);
 
   if (!active || !item || !topic || !exercise || !inquiry) {
     return (
@@ -182,7 +188,7 @@ export function SessionScreen({
         {!showInquiry && phase !== "reflect" && feedback ? (
           <div className="feedback" data-testid="feedback" role="status">
             <h2>{feedback.ok ? "Yes!" : "Good try."}</h2>
-            <p>{feedback.explain}</p>
+            <p data-testid="feedback-explain">{feedback.explain}</p>
             <button
               type="button"
               className="primary"

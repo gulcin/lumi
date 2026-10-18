@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-18
+
+Every exercise can be answered, and a wrong try still leads on.
+
+### Added
+
+- A hint on every exercise. It nudges without saying the answer.
+- A check that plays every exercise before a deploy, on iPhone and iPad, including a wrong try, a right try, Hear, and Hint.
+
+### Fixed
+
+- Some "smallest to largest" questions repeated a number, so there was no single order.
+- Some algebra choices showed the same answer twice.
+- Some bar charts tied, so "which is tallest?" had two answers.
+- Some history and science questions belonged to a neighbouring skill. A skill now gets a question about itself, or a talk, when nothing in the bank fits.
+- Talk cards no longer paste teacher notes. Aida gets a short idea she can say out loud.
+
 ## [1.2.0] - 2026-10-18
 
 Aida can tell us about a bug or an idea from any screen.
@@ -66,6 +83,7 @@ First marked version. This is Lumi as it stands for Aida: a grade 3 learning app
 - Painted storybook pictures: Lumi happy, thinking, listening, celebrating, and sleeping; a scene for each of the six themes; and a picture for each subject.
 - A version in Grown-ups, a What's new page, and a short New! note for her after an update.
 
+[1.3.0]: https://github.com/gulcin/lumi/releases/tag/v1.3.0
 [1.2.0]: https://github.com/gulcin/lumi/releases/tag/v1.2.0
 [1.1.2]: https://github.com/gulcin/lumi/releases/tag/v1.1.2
 [1.1.1]: https://github.com/gulcin/lumi/releases/tag/v1.1.1

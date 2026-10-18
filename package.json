@@ -1,7 +1,7 @@
 {
   "name": "lumi",
   "private": true,
-  "version": "1.2.0",
+  "version": "1.3.0",
   "type": "module",
   "scripts": {
     "prepare-data": "node scripts/prepare-taxonomy.mjs",
@@ -12,6 +12,7 @@
     "verify": "node scripts/verify-ipad.mjs",
     "verify:type": "node scripts/verify-type.mjs",
     "verify:screens": "node scripts/verify-screens.mjs",
+    "verify:exercises": "node scripts/verify-exercises.mjs",
     "map-pyp": "node scripts/pyp-map.mjs",
     "migrate": "node scripts/migrate.mjs"
   },

@@ -1,0 +1,7 @@
+Marble Skill Taxonomy (v1) · © Generative Spark, Inc. (Marble) · https://withmarble.com · licensed under ODbL 1.0 (database) and CC BY-SA 4.0 (content).
+
+The files in vendor/marble/ are the Marble Skill Taxonomy (v1): topics, the prerequisite graph, and parent-friendly cluster summaries. They are used under the Open Database License 1.0 (database) and Creative Commons Attribution-ShareAlike 4.0 (text).
+
+A runtime copy is written to public/data/taxonomy.json when you install or build. That copy keeps the fields Lumi teaches from (name, description, age range, evidence, assessment prompt, subject, domain, type) plus the full dependency graph and cluster summaries. Standards codes and centrality scores are left in the original files only.
+
+Lumi is an independent project and is not made or endorsed by Generative Spark, Inc. or Marble.

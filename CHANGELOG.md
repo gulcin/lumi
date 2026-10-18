@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-18
+
+The clock shows the time it asks about.
+
+### Fixed
+
+- The long teal minute hand moves 6° per minute, and the short red hour hand moves half a degree per minute. 3 o'clock points at 12 and 3. Half past sits halfway between the hours. The numbers 1 to 12 are on the face.
+- Hints say what to look at for that question, instead of "Read each one."
+- A duration lesson compares two times. The lesson name in the header stays readable.
+- A few other questions asked about a neighbouring idea: bonds, capacity, sharing, spaces between words, decimal equivalents, sorting, number words, ratios, and two-step equations now match their lesson.
+- The exercise check reads the clock hands and the bar heights, and checks that one choice is right.
+
 ## [1.3.0] - 2026-10-18
 
 Every exercise can be answered, and a wrong try still leads on.
@@ -83,6 +95,7 @@ First marked version. This is Lumi as it stands for Aida: a grade 3 learning app
 - Painted storybook pictures: Lumi happy, thinking, listening, celebrating, and sleeping; a scene for each of the six themes; and a picture for each subject.
 - A version in Grown-ups, a What's new page, and a short New! note for her after an update.
 
+[1.3.1]: https://github.com/gulcin/lumi/releases/tag/v1.3.1
 [1.3.0]: https://github.com/gulcin/lumi/releases/tag/v1.3.0
 [1.2.0]: https://github.com/gulcin/lumi/releases/tag/v1.2.0
 [1.1.2]: https://github.com/gulcin/lumi/releases/tag/v1.1.2

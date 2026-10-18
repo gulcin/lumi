@@ -124,6 +124,20 @@ async function waitForServer(child) {
   throw new Error("preview did not start");
 }
 
+async function shot(page, path) {
+  let last = new Error(`could not save ${path}`);
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.screenshot({ path, fullPage: false });
+      return;
+    } catch (error) {
+      last = error instanceof Error ? error : new Error(String(error));
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+  }
+  throw last;
+}
+
 async function tap(locator) {
   await locator.tap({ timeout: 8000 });
 }
@@ -176,6 +190,85 @@ async function measure(page) {
   });
 }
 
+async function assertPicture(exercise) {
+  const issues = await exercise.evaluate((root) => {
+    const found = [];
+    const clock = root.querySelector(".viz-clock");
+    if (clock) {
+      const hour = Number(clock.getAttribute("data-hour"));
+      const minute = Number(clock.getAttribute("data-minute"));
+      const angleOf = (hand) => {
+        const transform = clock.querySelector(`[data-hand="${hand}"]`)?.getAttribute("transform") ?? "";
+        const match = /rotate\(\s*(-?\d+(?:\.\d+)?)/.exec(transform);
+        return match ? Number(match[1]) : Number.NaN;
+      };
+      const minuteAngle = angleOf("minute");
+      const hourAngle = angleOf("hour");
+      const expectMinute = minute * 6;
+      const expectHour = (hour % 12) * 30 + minute * 0.5;
+      if (Math.abs(minuteAngle - expectMinute) > 0.1) found.push(`minute hand ${minuteAngle}°, expected ${expectMinute}°`);
+      if (Math.abs(hourAngle - expectHour) > 0.1) found.push(`hour hand ${hourAngle}°, expected ${expectHour}°`);
+      const numbers = [...clock.querySelectorAll("text")].map((node) => (node.textContent ?? "").trim());
+      for (const n of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]) {
+        if (!numbers.includes(n)) found.push(`clock missing ${n}`);
+      }
+      const minuteWidth = Number(clock.querySelector('[data-hand="minute"]')?.getAttribute("stroke-width"));
+      const hourWidth = Number(clock.querySelector('[data-hand="hour"]')?.getAttribute("stroke-width"));
+      if (!(hourWidth > minuteWidth && minuteWidth > 0)) found.push("the hour hand is not the short thick hand");
+      const spoken =
+        minute === 0
+          ? `${hour} o'clock`
+          : minute === 15
+            ? `quarter past ${hour}`
+            : minute === 30
+              ? `half past ${hour}`
+              : minute === 45
+                ? `quarter to ${(hour % 12) + 1}`
+                : "";
+      const kind = root.getAttribute("data-kind");
+      const token = root.getAttribute("data-answer") ?? "";
+      if (kind === "number" && (minute !== 0 || token !== String(hour))) found.push(`o'clock answer ${token} does not match ${hour}:00`);
+      if (kind === "choice") {
+        const label = (root.querySelector(`[data-choice-id="${token}"]`)?.textContent ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+        if (label !== spoken) found.push(`clock answer "${label}" is not ${spoken}`);
+      }
+    }
+    const cols = [...root.querySelectorAll(".bar-col")];
+    if (cols.length) {
+      const bars = cols.map((col) => {
+        const bar = col.querySelector(".bar");
+        return {
+          value: Number(bar?.getAttribute("data-value")),
+          height: bar ? Number.parseFloat(getComputedStyle(bar).height) : 0,
+          label: (col.querySelector("span")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+        };
+      });
+      const maxValue = Math.max(...bars.map((bar) => bar.value));
+      const tallest = bars.filter((bar) => bar.value === maxValue);
+      if (tallest.length !== 1) found.push("two bars are equally tall");
+      const maxHeight = Math.max(...bars.map((bar) => bar.height));
+      for (const bar of bars) {
+        const expected = maxValue === 0 ? 0 : (bar.value / maxValue) * maxHeight;
+        if (Math.abs(bar.height - expected) > 1.5) found.push(`${bar.label} bar is ${bar.height}px for value ${bar.value}`);
+      }
+      if (root.getAttribute("data-kind") === "choice" && tallest[0]) {
+        const token = root.getAttribute("data-answer") ?? "";
+        const label = (root.querySelector(`[data-choice-id="${token}"]`)?.textContent ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+        if (label !== tallest[0].label.toLowerCase()) found.push(`tallest bar is ${tallest[0].label}, answer is ${label}`);
+      }
+    }
+    const title = document.querySelector(".topbar strong");
+    if (title) {
+      const style = getComputedStyle(title);
+      const text = (title.textContent ?? "").trim();
+      const clipped = title.scrollHeight > title.clientHeight + 4 || title.scrollWidth > title.clientWidth + 4;
+      if (style.whiteSpace === "nowrap" || clipped) found.push(`topic title is cut short: ${text}`);
+    }
+    return found;
+  });
+  if (issues.length) throw new Error(issues.join("; "));
+}
+
 function layoutIssues(metrics, label) {
   const issues = [];
   if (metrics.html !== 16) issues.push(`${label} html font ${metrics.html}`);
@@ -197,6 +290,8 @@ async function hint(page, exercise) {
   await tap(page.getByTestId("hint"));
   const text = (await page.getByTestId("hint-text").innerText()).trim();
   if (!text || text.length > 160) throw new Error(`hint missing or long: ${text}`);
+  if (/^read each one/i.test(text)) throw new Error("hint is too vague");
+  if ((await exercise.locator(".viz-clock").count()) && !/hand/i.test(text)) throw new Error("clock hint does not mention the hands");
   const token = (await exercise.getAttribute("data-answer")) ?? "";
   const kind = await exercise.getAttribute("data-kind");
   if (kind === "number" && token && token !== "0" && text.includes(token)) throw new Error("hint gives away the number");
@@ -358,10 +453,11 @@ try {
         const metrics = await measure(page);
         const issues = layoutIssues(metrics, "ipad-11-portrait");
         if (issues.length) throw new Error(issues.join("; "));
+        await assertPicture(exercise);
         if (!seenGenerators.has(generator) || /pyramid|pharaoh|electricity|conductor|switch|bulb|circuit/i.test(topic.name)) {
           seenGenerators.add(generator);
           const file = `${shots}/${slug(generator)}-${slug(topic.name).slice(0, 48)}.png`;
-          await page.screenshot({ path: file, fullPage: false });
+          await shot(page, file);
           representatives.push({ generator, kind, id: topic.id, name: topic.name, subject: topic.subject, file });
         }
         await hear(page);
@@ -410,6 +506,66 @@ try {
 
     if (!said) failures.push("Say it was never tried");
 
+    const clockContext = await browser.newContext({
+      ...view("iphone", 390, 844).device,
+      reducedMotion: "reduce",
+      serviceWorkers: "block",
+    });
+    await clockContext.addInitScript((saved) => {
+      localStorage.setItem("lumi.progress.v1", JSON.stringify(saved));
+    }, progress());
+    const clockPage = await clockContext.newPage();
+    await clockPage.goto(origin, { waitUntil: "domcontentloaded" });
+    await clockPage.getByRole("heading", { name: "Hi, Aida." }).waitFor({ timeout: 15000 });
+    const faces = [
+      [3, 0, "clock-3-00.png"],
+      [3, 30, "clock-half-past.png"],
+      [3, 15, "clock-quarter-past.png"],
+      [3, 45, "clock-quarter-to.png"],
+    ];
+    for (const [hour, minute, file] of faces) {
+      try {
+        const started = await clockPage.evaluate(
+          ([faceHour, faceMinute]) => window.__lumiAudit?.showClock(faceHour, faceMinute) ?? false,
+          [hour, minute],
+        );
+        if (!started) throw new Error("showClock failed");
+        const exercise = clockPage.getByTestId("exercise");
+        await exercise.waitFor({ timeout: 15000 });
+        await assertPicture(exercise);
+        if ((await clockPage.getByTestId("hint-text").count()) === 0) await tap(clockPage.getByTestId("hint"));
+        const hintText = (await clockPage.getByTestId("hint-text").innerText()).trim();
+        if (!/hand/i.test(hintText) || /read each one/i.test(hintText)) throw new Error(`clock hint: ${hintText}`);
+        const title = (await clockPage.locator(".topbar strong").innerText()).replace(/\s+/g, " ");
+        if (!/telling time/i.test(title)) throw new Error(`clock header is "${title}"`);
+        const metrics = await measure(clockPage);
+        const issues = layoutIssues(metrics, "iphone-clock");
+        if (issues.length) throw new Error(issues.join("; "));
+        await shot(clockPage, `${shots}/${file}`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        failures.push(`clock ${hour}:${String(minute).padStart(2, "0")}: ${message}`);
+        await clockPage.screenshot({ path: `${shots}/fail-${file}`, fullPage: false }).catch(() => {});
+      }
+    }
+    const compare = taxonomy.topics.find((topic) => topic.name === "Comparing durations");
+    if (compare) {
+      try {
+        await openTopic(clockPage, compare.id);
+        await assertPicture(clockPage.getByTestId("exercise"));
+        const prompt = (await clockPage.locator(".prompt").innerText()).replace(/\s+/g, " ");
+        if (!/longer|shorter/i.test(prompt)) throw new Error(`duration prompt: ${prompt}`);
+        const title = (await clockPage.locator(".topbar strong").innerText()).replace(/\s+/g, " ");
+        if (!/comparing durations/i.test(title)) throw new Error(`duration header is "${title}"`);
+        await shot(clockPage, `${shots}/iphone-comparing-durations.png`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        failures.push(`Comparing durations: ${message}`);
+      }
+    } else failures.push("Comparing durations topic is missing");
+    await clockContext.close();
+    console.log("clock faces checked");
+
     for (const layout of layoutViews) {
       const layoutContext = await browser.newContext({ ...layout.device, reducedMotion: "reduce", serviceWorkers: "block" });
       await layoutContext.addInitScript((saved) => {
@@ -426,7 +582,8 @@ try {
           const metrics = await measure(layoutPage);
           const issues = layoutIssues(metrics, layout.name);
           if (issues.length) throw new Error(issues.join("; "));
-          await layoutPage.screenshot({ path: `${shots}/${layout.name}-${slug(item.generator)}.png`, fullPage: false });
+          await assertPicture(layoutPage.getByTestId("exercise"));
+          await shot(layoutPage, `${shots}/${layout.name}-${slug(item.generator)}.png`);
           await tap(layoutPage.getByRole("button", { name: "Back" }));
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);

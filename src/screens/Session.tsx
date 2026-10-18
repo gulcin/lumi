@@ -7,6 +7,7 @@ import { Lumi } from "../components/Lumi";
 import { frontierEnd } from "../lib/adaptive";
 import { earnAcorn } from "../lib/acorns";
 import { awardBadges } from "../lib/badges";
+import { auditPreview } from "../lib/auditPreview";
 import { exerciseFromSeed, exerciseSpeak } from "../lib/generators";
 import type { Exercise } from "../lib/generators/types";
 import { inquiryFor } from "../lib/pyp";
@@ -50,10 +51,11 @@ export function SessionScreen({
   const [feedback, setFeedback] = useState<{ ok: boolean; explain: string } | null>(null);
   const item = active?.items[active.index];
   const topic = item ? catalog.byId.get(item.topicId) : undefined;
-  const exercise: Exercise | null = item && topic ? exerciseFromSeed(topic, item.seed) : null;
+  const audit = active?.id === "audit" || active?.id === "audit-clock";
+  const preview = audit ? auditPreview() : null;
+  const exercise: Exercise | null = preview ?? (item && topic ? exerciseFromSeed(topic, item.seed) : null);
   const themeId = topic ? catalog.pypMap?.topics[topic.id]?.theme : undefined;
   const inquiry = topic ? inquiryFor(topic, themeId) : null;
-  const audit = active?.id === "audit";
   const showInquiry = Boolean(!audit && topic && inquiry && phase === "inquiry" && !seen.includes(topic.id));
   const line = showInquiry
     ? inquiry?.spoken ?? ""
@@ -71,7 +73,7 @@ export function SessionScreen({
 
   useEffect(() => {
     if (!topic) return;
-    if (active?.id === "audit") {
+    if (active?.id === "audit" || active?.id === "audit-clock") {
       setPhase("ask");
       setFeedback(null);
       return;

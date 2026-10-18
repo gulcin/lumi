@@ -402,6 +402,18 @@ function grammar(topic: Topic, rng: Rng): Exercise {
       ],
     });
   }
+  if (/space/.test(n)) {
+    return choiceExercise(topic, rng, "grammar", {
+      prompt: "Which one has a space between the words?",
+      speak: "Which one has a space between the words?",
+      explain: "Red tram has a space, so the two words stay easy to read.",
+      choices: [
+        { label: "red tram", correct: true },
+        { label: "redtram", correct: false },
+        { label: "r e d t r a m", correct: false },
+      ],
+    });
+  }
   if (/sentence|build|clause|word order/.test(n) || rng() < 0.45) {
     const sentence = pick(rng, SENTENCES);
     return orderExercise(topic, rng, "sentences", {
@@ -503,6 +515,18 @@ function reading(topic: Topic, rng: Rng): Exercise | null {
 
 function writing(topic: Topic, rng: Rng): Exercise | null {
   const n = nameOf(topic);
+  if (/tone|audience/.test(n)) {
+    return choiceExercise(topic, rng, "writing", {
+      prompt: "Which note fits a thank-you to a grown-up?",
+      speak: "Which note fits a thank-you to a grown-up?",
+      explain: "A thank-you is warm and clear. A shout or a joke does not fit.",
+      choices: [
+        { label: "Thank you for the scarf. I love it.", correct: true },
+        { label: "GIVE ME MORE STUFF NOW.", correct: false },
+        { label: "The tram ate the moon, lol.", correct: false },
+      ],
+    });
+  }
   if (topic.ageRangeStart <= 8 || /sentence/.test(n)) {
     const sentence = pick(rng, SENTENCES);
     return orderExercise(topic, rng, "sentences", {

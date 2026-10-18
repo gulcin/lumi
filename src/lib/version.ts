@@ -11,6 +11,7 @@ const KID_NOTES: Record<string, string> = {
   "1.1.2": "The words are the right size.",
   "1.2.0": "You can tell Lumi about a bug or an idea.",
   "1.3.0": "Every exercise has a hint, and a wrong try still helps.",
+  "1.3.1": "The clock shows the right time.",
 };
 
 export type ReleaseSection = { title: string; items: string[] };

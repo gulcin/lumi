@@ -51,7 +51,28 @@ p { margin: 0.4em 0; }
   gap: 8px;
   margin-bottom: 8px;
 }
-.topbar strong { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: "Fredoka", sans-serif; font-size: 1.15rem; }
+.topbar strong {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-family: "Fredoka", sans-serif;
+  font-size: 1rem;
+  line-height: 1.15;
+}
+@media (max-width: 480px) {
+  .topbar { flex-wrap: wrap; }
+  .topbar strong {
+    flex: 1 0 100%;
+    order: 5;
+    margin-top: 4px;
+    font-size: 1.05rem;
+    -webkit-line-clamp: 3;
+  }
+  .topbar-actions { margin-left: auto; }
+}
 .topbar-actions, .topbar-mark { display: flex; gap: 6px; align-items: center; flex: none; }
 .tell-btn {
   display: inline-flex;
@@ -520,7 +541,7 @@ html.update-waiting .shell { padding-bottom: 148px; }
   .pad-grid button { min-height: 48px; font-size: 1.25rem; }
   .pad-display { font-size: 1.7rem; padding: 2px; margin-bottom: 4px; }
   .choice { min-height: 52px; }
-  .viz-clock, .viz-shape { width: 108px; margin: 2px auto; }
+  .viz-clock, .viz-shape { width: 132px; margin: 2px auto; }
   .exercise, .feedback { padding: 12px; }
   .hint-row { margin: 0 0 4px; }
   .pips { margin: 4px 0; }

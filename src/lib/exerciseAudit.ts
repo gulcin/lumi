@@ -1,7 +1,16 @@
+import { clockHandAngles, clockSpoken } from "./clock";
 import type { Exercise, Worked } from "./generators/types";
 import { worldPromptFitsTopic } from "./generators/world";
 import { exerciseHint } from "./exerciseHint";
 import type { Topic } from "./types";
+
+const SHAPE_SIDES: Record<string, number> = {
+  triangle: 3,
+  square: 4,
+  rectangle: 4,
+  pentagon: 5,
+  hexagon: 6,
+};
 
 function close(a: number, b: number): boolean {
   return Math.abs(a - b) < 0.001;
@@ -104,6 +113,11 @@ export function checkExercise(topic: Topic, exercise: Exercise): string[] {
   }
   if (visual?.type === "clock") {
     if (visual.hour < 1 || visual.hour > 12 || ![0, 15, 30, 45].includes(visual.minute)) bad("clock does not match a time we ask");
+    const angles = clockHandAngles(visual.hour, visual.minute);
+    if (angles.minute !== visual.minute * 6 || angles.hour !== (visual.hour % 12) * 30 + visual.minute * 0.5) {
+      bad("clock hand angles are wrong");
+    }
+    if (visual.minute === 0 && exercise.kind === "number" && exercise.answer !== visual.hour) bad("o'clock answer does not match the clock");
   }
   if (visual?.type === "fraction") {
     if (visual.parts < 1 || visual.filled < 0 || visual.filled > visual.parts) bad("fraction picture is impossible");
@@ -120,10 +134,62 @@ export function checkExercise(topic: Topic, exercise: Exercise): string[] {
     const correct = exercise.choices?.find((choice) => choice.id === exercise.correctId)?.label.toLowerCase() ?? "";
     if (correct && correct !== visual.name.toLowerCase()) bad("shape picture does not match the answer");
   }
+  if (visual?.type === "shape" && exercise.kind === "number" && /sides/.test(exercise.prompt) && exercise.answer != null) {
+    const sides = SHAPE_SIDES[visual.name];
+    if (sides == null || exercise.answer !== sides) bad("the side count does not match the shape");
+  }
+
+  const expected = independentLabels(exercise);
+  if (expected && exercise.kind === "choice") {
+    const fitting = exercise.choices?.filter((choice) => expected.includes(choice.label.trim().toLowerCase())) ?? [];
+    const marked = exercise.choices?.filter((choice) => choice.id === exercise.correctId) ?? [];
+    if (fitting.length !== 1 || marked.length !== 1 || fitting[0]?.id !== marked[0]?.id) {
+      bad(`expected ${expected.join(" or ")} but the choices disagree`);
+    }
+  }
+
+  const skill = topic.name.toLowerCase();
+  if (/compar/.test(skill) && /duration/.test(skill) && !/longer|shorter/.test(exercise.prompt.toLowerCase())) {
+    bad("this duration skill does not compare durations");
+  }
+  if (/^telling time/i.test(topic.name) && exercise.visual?.type !== "clock") {
+    bad("telling the time does not show a clock");
+  }
+  if (/^read each one/i.test(hint)) bad("hint is too vague");
+  if (exercise.visual?.type === "clock" && !/hand/i.test(hint)) bad("clock hint does not mention the hands");
 
   if (exercise.generatorId === "world" && topic.ageRangeStart >= 8 && !worldPromptFitsTopic(topic, exercise.prompt)) {
     bad(`question does not match this skill (${exercise.prompt})`);
   }
 
   return issues;
+}
+
+function independentLabels(exercise: Exercise): string[] | null {
+  const prompt = exercise.prompt.trim();
+  const blend = /^Which word is ((?:[a-z]{1,3})(?: [a-z]{1,3})+)\??$/i.exec(prompt);
+  if (blend) return [blend[1]!.replace(/ /g, "").toLowerCase()];
+  if (/same as 3 o'clock in the afternoon/i.test(prompt)) return ["15:00"];
+  const longer = /^Which lasts longer, (\d+) minutes or (\d+) minutes\?$/.exec(prompt);
+  if (longer) return [`${Math.max(Number(longer[1]), Number(longer[2]))} minutes`];
+  const same = /^Which fraction equals (\d+)\s*\/\s*(\d+)\?$/.exec(prompt);
+  if (same && exercise.choices) {
+    const target = Number(same[1]) / Number(same[2]);
+    return exercise.choices
+      .filter((choice) => {
+        const parts = /^(\d+)\s*\/\s*(\d+)$/.exec(choice.label.trim());
+        return parts != null && Number(parts[2]) !== 0 && Number(parts[1]) / Number(parts[2]) === target;
+      })
+      .map((choice) => choice.label.trim().toLowerCase());
+  }
+  if (exercise.visual?.type === "fraction" && /fraction is shaded/i.test(prompt)) {
+    return [`${exercise.visual.filled}/${exercise.visual.parts}`];
+  }
+  if (exercise.visual?.type === "shape" && exercise.kind === "choice") return [exercise.visual.name.toLowerCase()];
+  if (exercise.visual?.type === "clock" && exercise.kind === "choice") return [clockSpoken(exercise.visual.hour, exercise.visual.minute).toLowerCase()];
+  if (exercise.visual?.type === "bars" && exercise.kind === "choice") {
+    const max = Math.max(...exercise.visual.bars.map((bar) => bar.value));
+    return exercise.visual.bars.filter((bar) => bar.value === max).map((bar) => bar.label.toLowerCase());
+  }
+  return null;
 }

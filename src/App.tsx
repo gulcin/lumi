@@ -6,6 +6,8 @@ import { buildInfo } from "./lib/buildInfo";
 import { setFeedbackPlace } from "./lib/feedbackPlace";
 import { setLessonInProgress } from "./lib/updateState";
 import { dismissKidNotice, kidNoteFor, openKidNotice } from "./lib/version";
+import { setAuditPreview } from "./lib/auditPreview";
+import { clockExercise } from "./lib/clock";
 import { buildCatalog } from "./lib/catalog";
 import { hasHandsOn } from "./lib/generators";
 import { planSession, planTopicPractice } from "./lib/adaptive";
@@ -62,7 +64,10 @@ export function App() {
   const [journalGrownup, setJournalGrownup] = useState(false);
   const [afterGate, setAfterGate] = useState<"parent" | "gplace">("parent");
   const kickSync = useRef<() => void>(() => {});
-  const auditRef = useRef<(topicId: string) => boolean>(() => false);
+  const auditRef = useRef<{ start: (topicId: string) => boolean; showClock: (hour: number, minute: number) => boolean }>({
+    start: () => false,
+    showClock: () => false,
+  });
   const e2e = new URLSearchParams(window.location.search).has("e2e");
   const [kidNew, setKidNew] = useState(false);
 
@@ -181,30 +186,58 @@ export function App() {
     }
   }
 
-  auditRef.current = (topicId: string) => {
-    if (!catalog?.byId.has(topicId)) return false;
-    const base = loadProgress();
-    commit({
-      ...base,
-      active: {
-        id: "audit",
-        mode: "topic",
-        topicId,
-        startedAt: 1,
-        items: [{ topicId, role: "practice", seed: 17 }],
-        index: 0,
-        correct: 0,
-        stars: 0,
-        newlyMastered: [],
-      },
-    });
-    setScreen("session");
-    return true;
+  auditRef.current = {
+    start(topicId: string) {
+      if (!catalog?.byId.has(topicId)) return false;
+      setAuditPreview(null);
+      const base = loadProgress();
+      commit({
+        ...base,
+        active: {
+          id: "audit",
+          mode: "topic",
+          topicId,
+          startedAt: 1,
+          items: [{ topicId, role: "practice", seed: 17 }],
+          index: 0,
+          correct: 0,
+          stars: 0,
+          newlyMastered: [],
+        },
+      });
+      setScreen("session");
+      return true;
+    },
+    showClock(hour: number, minute: number) {
+      const topic = catalog ? [...catalog.byId.values()].find((item) => item.name === "Telling Time: Hours and Half Hours") : undefined;
+      if (!topic) return false;
+      setAuditPreview(clockExercise(topic.id, hour, minute));
+      const base = loadProgress();
+      commit({
+        ...base,
+        active: {
+          id: "audit-clock",
+          mode: "topic",
+          topicId: topic.id,
+          startedAt: 1,
+          items: [{ topicId: topic.id, role: "practice", seed: 17 }],
+          index: 0,
+          correct: 0,
+          stars: 0,
+          newlyMastered: [],
+        },
+      });
+      setScreen("session");
+      return true;
+    },
   };
 
   useEffect(() => {
     if (!e2e) return;
-    window.__lumiAudit = { start: (topicId: string) => auditRef.current(topicId) };
+    window.__lumiAudit = {
+      start: (topicId: string) => auditRef.current.start(topicId),
+      showClock: (hour: number, minute: number) => auditRef.current.showClock(hour, minute),
+    };
     return () => {
       delete window.__lumiAudit;
     };

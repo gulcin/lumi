@@ -11,7 +11,10 @@ interface ImportMeta {
 }
 
 interface Window {
-  __lumiAudit?: { start: (topicId: string) => boolean };
+  __lumiAudit?: {
+    start: (topicId: string) => boolean;
+    showClock: (hour: number, minute: number) => boolean;
+  };
 }
 
 declare module "qrcode" {

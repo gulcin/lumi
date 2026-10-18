@@ -95,7 +95,8 @@ function addSub(topic: Topic, rng: Rng): Exercise {
     });
   }
   if (/bond|pairs/.test(n) || (max <= 20 && rng() < 0.35)) {
-    const target = max <= 5 ? 5 : max <= 10 ? 10 : 20;
+    const named = /\bto (\d+)\b/.exec(n);
+    const target = named ? Number(named[1]) : max <= 5 ? 5 : max <= 10 ? 10 : 20;
     const a = irand(rng, 0, target);
     const answer = target - a;
     return numberExercise(topic, rng, "bonds", {
@@ -113,9 +114,11 @@ function addSub(topic: Topic, rng: Rng): Exercise {
     const b = irand(rng, 0, a);
     const answer = a - b;
     if (rng() < 0.45) {
+      const apples = a === 1 ? "1 apple" : `${a} apples`;
+      const eaten = b === 1 ? "1 was" : `${b} were`;
       return numberExercise(topic, rng, "subtraction", {
-        prompt: `There were ${a} apples. ${b} were eaten. How many are left?`,
-        speak: `There were ${a} apples. ${b} were eaten. How many are left?`,
+        prompt: `There ${a === 1 ? "was" : "were"} ${apples}. ${eaten} eaten. How many are left?`,
+        speak: `There ${a === 1 ? "was" : "were"} ${apples}. ${eaten} eaten. How many are left?`,
         explain: `${a} minus ${b} is ${answer}.`,
         answer,
         worked: { op: "-", a, b, answer },
@@ -168,7 +171,24 @@ function mulDiv(topic: Topic, rng: Rng): Exercise {
       ],
     });
   }
-  const division = /divid|share|group/.test(n) && !/repeated addition/.test(n) ? rng() < 0.75 : rng() < 0.35 && age >= 7;
+  if (/multi-step|two-step/.test(n)) {
+    const groups = irand(rng, 2, 6);
+    const each = irand(rng, 2, 6);
+    const extra = irand(rng, 1, 5);
+    const product = groups * each;
+    const answer = each + extra;
+    return numberExercise(topic, rng, "division", {
+      prompt: `${product} ÷ ${groups} + ${extra}`,
+      speak: `What is ${product} divided by ${groups}, plus ${extra}?`,
+      explain: `${product} ÷ ${groups} is ${each}. Then ${each} + ${extra} is ${answer}.`,
+      answer,
+      visual: { type: "equation", text: `${product} ÷ ${groups} + ${extra}` },
+      worked: { op: "+", a: each, b: extra, answer },
+    });
+  }
+  const namedDivision = /divi|shar|group/.test(n) && !/repeated addition|times|multipl/.test(n);
+  const namedMultiply = /times|multipl|product|array|repeated/.test(n) && !/divi|shar/.test(n);
+  const division = namedDivision ? true : namedMultiply ? false : rng() < 0.35 && age >= 7;
   if (/array|repeated/.test(n) && !division) {
     const rows = irand(rng, 2, 4);
     const cols = irand(rng, 2, age >= 8 ? 6 : 4);
@@ -312,6 +332,22 @@ function decimals(topic: Topic, rng: Rng): Exercise {
       ],
     });
   }
+  if (/equivalent/.test(n)) {
+    const tenths = irand(rng, 1, 9);
+    const same = (tenths / 10).toFixed(1);
+    const smaller = (tenths / 100).toFixed(2);
+    const neighbour = ((tenths % 9) + 1) / 10;
+    return choiceExercise(topic, rng, "decimals", {
+      prompt: `Which decimal is the same as ${tenths}/10?`,
+      speak: `Which decimal is the same as ${tenths} tenths?`,
+      explain: `${tenths}/10 is ${same}.`,
+      choices: [
+        { label: same, correct: true },
+        { label: smaller, correct: false },
+        { label: neighbour.toFixed(1), correct: false },
+      ],
+    });
+  }
   if (/hundredth|three places|place value/.test(n) && rng() < 0.5) {
     const answer = irand(rng, 1, 9);
     return numberExercise(topic, rng, "decimals", {
@@ -377,8 +413,9 @@ function ratio(topic: Topic, rng: Rng): Exercise {
       worked: { op: "*", a: drawn, b: scale, answer },
     });
   }
-  const partA = pick(rng, [1, 1, 2]);
-  const partB = pick(rng, [2, 3]);
+  const partA = pick(rng, [1, 2]);
+  let partB = pick(rng, [2, 3, 4]);
+  if (partB === partA) partB += 1;
   const share = irand(rng, 2, 5);
   const total = (partA + partB) * share;
   const bigger = Math.max(partA, partB) * share;
@@ -435,6 +472,16 @@ function placeValue(topic: Topic, rng: Rng): Exercise {
   const hundreds = topic.ageRangeEnd >= 8 ? irand(rng, 1, 9) : 0;
   const tens = irand(rng, 1, 9);
   const ones = irand(rng, 0, 9);
+  if (/number word|words to/.test(n)) {
+    const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"];
+    const value = irand(rng, 0, 20);
+    return numberExercise(topic, rng, "place", {
+      prompt: `What number is the word ${words[value]}?`,
+      speak: `What number is the word ${words[value]}?`,
+      explain: `${words[value]} is ${value}.`,
+      answer: value,
+    });
+  }
   if (/teen/.test(n)) {
     const teen = irand(rng, 11, 19);
     return numberExercise(topic, rng, "place", {
@@ -595,6 +642,27 @@ function measurement(topic: Topic, rng: Rng): Exercise {
   const n = nameOf(topic);
   if (/money|coin|change|price|cost|budget|kč|pound|pence/.test(n) || topic.domain === "Money & Finance") return money(topic, rng);
   if (/time|clock|hour|minute|day|week|month|duration|interval/.test(n)) return time(topic, rng);
+  if (/capacity|litre|volume|holds/.test(n)) {
+    if (topic.ageRangeEnd >= 8) {
+      const litres = irand(rng, 1, 4);
+      return numberExercise(topic, rng, "measure", {
+        prompt: `How many millilitres are in ${litres} L?`,
+        speak: `How many millilitres are in ${litres} litres?`,
+        explain: `1 litre is 1000 millilitres, so ${litres * 1000}.`,
+        answer: litres * 1000,
+        worked: { op: "*", a: litres, b: 1000, answer: litres * 1000 },
+      });
+    }
+    return choiceExercise(topic, rng, "measure", {
+      prompt: "Which holds more?",
+      speak: "Which holds more, a bucket or a cup?",
+      explain: "A bucket holds more than a cup.",
+      choices: [
+        { label: "A bucket", emoji: "🪣", correct: true },
+        { label: "A cup", emoji: "🥤", correct: false },
+      ],
+    });
+  }
   if (/convert|centimetre|metre|gram|kilogram|capacity|litre|mass|length/.test(n) && topic.ageRangeEnd >= 7) return conversion(topic, rng);
   return choiceExercise(topic, rng, "measure", {
     prompt: "Which is longer?",
@@ -635,7 +703,51 @@ function money(topic: Topic, rng: Rng): Exercise {
 
 function time(topic: Topic, rng: Rng): Exercise {
   const n = nameOf(topic);
-  if (/day|week|month|year/.test(n) && !/minute|hour/.test(n)) {
+  if (/compar/.test(n)) {
+    const shorter = pick(rng, [10, 15, 20, 30]);
+    const longer = shorter + pick(rng, [15, 30, 45]);
+    return choiceExercise(topic, rng, "time", {
+      prompt: `Which lasts longer, ${shorter} minutes or ${longer} minutes?`,
+      speak: `Which lasts longer, ${shorter} minutes or ${longer} minutes?`,
+      explain: `${longer} minutes is more than ${shorter} minutes.`,
+      choices: [
+        { label: `${longer} minutes`, correct: true },
+        { label: `${shorter} minutes`, correct: false },
+        { label: "They are the same", correct: false },
+      ],
+    });
+  }
+  if (/order/.test(n)) {
+    return orderExercise(topic, rng, "time", {
+      prompt: "Tap the parts of the day in order, starting from morning.",
+      speak: "Tap the parts of the day in order, starting from morning.",
+      explain: "Morning comes first, then afternoon, then evening.",
+      labels: ["Morning", "Afternoon", "Evening"],
+    });
+  }
+  if (/minutes in an hour|number of minutes/.test(n)) {
+    const hours = irand(rng, 1, 4);
+    return numberExercise(topic, rng, "time", {
+      prompt: `How many minutes are in ${hours} ${hours === 1 ? "hour" : "hours"}?`,
+      speak: `How many minutes are in ${hours} ${hours === 1 ? "hour" : "hours"}?`,
+      explain: `Each hour has 60 minutes, so ${hours * 60}.`,
+      answer: hours * 60,
+      worked: { op: "*", a: hours, b: 60, answer: hours * 60 },
+    });
+  }
+  if (/12-hour|24-hour/.test(n)) {
+    return choiceExercise(topic, rng, "time", {
+      prompt: "Which time is the same as 3 o'clock in the afternoon?",
+      speak: "Which time is the same as 3 o'clock in the afternoon?",
+      explain: "In the 24-hour clock, 3 in the afternoon is 15:00.",
+      choices: [
+        { label: "15:00", correct: true },
+        { label: "03:00", correct: false },
+        { label: "3:00 at night only", correct: false },
+      ],
+    });
+  }
+  if (/day|week|month|year|calendar|unit/.test(n) && !/hour|minute/.test(n)) {
     return orderExercise(topic, rng, "time", {
       prompt: "Tap the days in order, starting from Monday.",
       speak: "Tap the days in order, starting from Monday.",
@@ -643,37 +755,39 @@ function time(topic: Topic, rng: Rng): Exercise {
       labels: ["Monday", "Tuesday", "Wednesday", "Thursday"],
     });
   }
-  if ((/elapsed|duration|interval|later|earlier/.test(n) || topic.ageRangeEnd >= 9) && rng() < 0.6) {
+  if (/elapsed|interval|later|earlier|duration/.test(n)) {
     const mins = pick(rng, [15, 20, 30, 45]);
     return numberExercise(topic, rng, "time", {
-      prompt: `A lesson starts at 2:00 and lasts ${mins} minutes. Which minutes past 2 does it end?`,
+      prompt: `A lesson starts at 2:00 and lasts ${mins} minutes. How many minutes past 2 does it end?`,
       speak: `A lesson starts at 2 o'clock and lasts ${mins} minutes. How many minutes past 2 does it end?`,
       explain: `It ends at ${mins} minutes past 2.`,
       answer: mins,
     });
   }
   const hour = irand(rng, 1, 12);
-  const minute = topic.ageRangeEnd <= 6 ? pick(rng, [0, 30]) : pick(rng, [0, 15, 30, 45]);
+  const halfOnly = /half hours?/.test(n) || topic.ageRangeEnd <= 6;
+  const minute = halfOnly ? pick(rng, [0, 30]) : pick(rng, [0, 15, 30, 45]);
   if (minute === 0) {
     return numberExercise(topic, rng, "time", {
       prompt: "What hour is it?",
       speak: "What hour does the clock show?",
-      explain: `The hour hand is on ${hour}. It is ${hour} o'clock.`,
+      explain: `The short hand is on ${hour}. It is ${hour} o'clock.`,
       answer: hour,
       visual: { type: "clock", hour, minute },
     });
   }
-  const label = minute === 30 ? "half past" : minute === 15 ? "quarter past" : "quarter to";
   const spokenHour = minute === 45 ? (hour % 12) + 1 : hour;
+  const spoken = minute === 30 ? `half past ${hour}` : minute === 15 ? `quarter past ${hour}` : `quarter to ${spokenHour}`;
+  const other = minute === 30 ? `quarter past ${hour}` : `half past ${hour}`;
   return choiceExercise(topic, rng, "time", {
     prompt: "What time is it?",
     speak: "What time does the clock show?",
-    explain: minute === 45 ? `This is quarter to ${spokenHour}.` : `This is ${label} ${hour}.`,
-    visual: { type: "clock", hour: minute === 45 ? hour : hour, minute },
+    explain: `This is ${spoken}.`,
+    visual: { type: "clock", hour, minute },
     choices: [
-      { label: minute === 45 ? `quarter to ${spokenHour}` : `${label} ${hour}`, correct: true },
+      { label: spoken, correct: true },
       { label: `${hour} o'clock`, correct: false },
-      { label: minute === 30 ? `quarter past ${hour}` : `half past ${hour}`, correct: false },
+      { label: other, correct: false },
     ],
   });
 }
@@ -779,6 +893,20 @@ function algebra(topic: Topic, rng: Rng): Exercise {
       worked: { op: "+", a: x, b: 1, answer: x + 1 },
     });
   }
+  if (/two-step|2-step/.test(n)) {
+    const nVal = irand(rng, 2, 8);
+    const coef = irand(rng, 2, 4);
+    const extra = irand(rng, 1, 6);
+    const total = coef * nVal + extra;
+    return numberExercise(topic, rng, "algebra", {
+      prompt: `${coef}n + ${extra} = ${total}. What is n?`,
+      speak: `${coef} n plus ${extra} equals ${total}. What is n?`,
+      explain: `Take away ${extra} to get ${total - extra}, then divide by ${coef}. n is ${nVal}.`,
+      answer: nVal,
+      visual: { type: "equation", text: `${coef}n + ${extra} = ${total}` },
+      worked: { op: "/", a: total - extra, b: coef, answer: nVal },
+    });
+  }
   if (/simultaneous|two unknown/.test(n)) {
     const x = irand(rng, 1, 8);
     const y = irand(rng, 1, 8);
@@ -815,6 +943,18 @@ function data(topic: Topic, rng: Rng): Exercise {
         { label: "It breaks", correct: true },
         { label: "It turns into a swan", correct: false },
         { label: "It is impossible to fall", correct: false },
+      ],
+    });
+  }
+  if (/sort|categor/.test(n) && !/bar|graph|pictogram|tally|chart/.test(n)) {
+    return choiceExercise(topic, rng, "data", {
+      prompt: "Which one belongs with the fruit?",
+      speak: "Apple and banana are fruit. Which one belongs with them?",
+      explain: "A pear is a fruit. A tram is not.",
+      choices: [
+        { label: "A pear", emoji: "🍐", correct: true },
+        { label: "A tram", emoji: "🚋", correct: false },
+        { label: "A key", emoji: "🔑", correct: false },
       ],
     });
   }

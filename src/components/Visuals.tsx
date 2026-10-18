@@ -1,3 +1,4 @@
+import { clockHandAngles } from "../lib/clock";
 import type { Visual } from "../lib/generators/types";
 
 export function VisualView({ visual }: { visual?: Visual }) {
@@ -66,7 +67,7 @@ export function VisualView({ visual }: { visual?: Visual }) {
       <div className="viz-bars" aria-hidden="true">
         {visual.bars.map((bar) => (
           <div key={bar.label} className="bar-col">
-            <div className="bar" style={{ height: `${(bar.value / max) * 120}px` }} />
+            <div className="bar" data-value={bar.value} style={{ height: `${(bar.value / max) * 120}px` }} />
             <span>{bar.label}</span>
           </div>
         ))}
@@ -77,26 +78,24 @@ export function VisualView({ visual }: { visual?: Visual }) {
 }
 
 function Clock({ hour, minute }: { hour: number; minute: number }) {
-  const minuteAngle = minute * 6;
-  const hourAngle = ((hour % 12) + minute / 60) * 30;
+  const angles = clockHandAngles(hour, minute);
+  const numbers = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   return (
-    <svg className="viz-clock" viewBox="0 0 120 120" aria-hidden="true">
-      <circle cx="60" cy="60" r="54" fill="#fffaf4" stroke="#3b2418" strokeWidth="4" />
-      {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle) => (
-        <line
-          key={angle}
-          x1="60"
-          y1="14"
-          x2="60"
-          y2="22"
-          stroke="#3b2418"
-          strokeWidth="3"
-          transform={`rotate(${angle} 60 60)`}
-        />
-      ))}
-      <line x1="60" y1="60" x2="60" y2="28" stroke="#1f8a70" strokeWidth="4" strokeLinecap="round" transform={`rotate(${minuteAngle} 60 60)`} />
-      <line x1="60" y1="64" x2="60" y2="38" stroke="#ef5d3c" strokeWidth="5" strokeLinecap="round" transform={`rotate(${hourAngle} 60 60)`} />
-      <circle cx="60" cy="60" r="4" fill="#3b2418" />
+    <svg className="viz-clock" viewBox="0 0 120 120" data-hour={hour} data-minute={minute} aria-hidden="true">
+      <circle cx="60" cy="60" r="56" fill="#fffaf4" stroke="#3b2418" strokeWidth="4" />
+      {numbers.map((n) => {
+        const turn = ((n % 12) * Math.PI) / 6;
+        const x = 60 + Math.sin(turn) * 42;
+        const y = 60 - Math.cos(turn) * 42;
+        return (
+          <text key={n} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize="13" fontWeight="700" fill="#3b2418" fontFamily="Fredoka, sans-serif">
+            {n}
+          </text>
+        );
+      })}
+      <line data-hand="minute" x1="60" y1="60" x2="60" y2="26" stroke="#1f8a70" strokeWidth="3" strokeLinecap="round" transform={`rotate(${angles.minute} 60 60)`} />
+      <line data-hand="hour" x1="60" y1="60" x2="60" y2="40" stroke="#ef5d3c" strokeWidth="7" strokeLinecap="round" transform={`rotate(${angles.hour} 60 60)`} />
+      <circle cx="60" cy="60" r="3.5" fill="#3b2418" />
     </svg>
   );
 }

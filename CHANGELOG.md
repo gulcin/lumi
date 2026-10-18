@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-18
+
+Lumi can take an update on the iPad home screen, without opening the website again.
+
+### Added
+
+- A painted note when a new copy is ready: "Lumi learned something new!" One tap on Update brings it in.
+- Lumi looks for an update when the app opens, when you come back to it, and about every 30 minutes.
+- A lesson that is already open keeps going. The update waits and comes in the next time the app is opened.
+- Grown-ups can see the current version and tap Check for updates.
+- The version file and the service worker are fetched fresh, so an old copy does not sit in the way.
+
 ## [1.0.0] - 2026-10-18
 
 First marked version. This is Lumi as it stands for Aida: a grade 3 learning app on the iPad, with painted pictures and a path that can climb as far as she wants.
@@ -29,4 +41,5 @@ First marked version. This is Lumi as it stands for Aida: a grade 3 learning app
 - Painted storybook pictures: Lumi happy, thinking, listening, celebrating, and sleeping; a scene for each of the six themes; and a picture for each subject.
 - A version in Grown-ups, a What's new page, and a short New! note for her after an update.
 
+[1.1.0]: https://github.com/gulcin/lumi/releases/tag/v1.1.0
 [1.0.0]: https://github.com/gulcin/lumi/releases/tag/v1.0.0

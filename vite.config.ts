@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import type { Connect, Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
@@ -20,6 +21,51 @@ function gitValue(command: string, fallback: string): string {
 const lumiVersion = process.env.LUMI_VERSION || pkg.version;
 const lumiSha = process.env.LUMI_GIT_SHA || gitValue("git rev-parse --short=7 HEAD", "dev");
 const lumiDate = process.env.LUMI_BUILD_DATE || gitValue("git log -1 --format=%cs", new Date().toISOString().slice(0, 10));
+const versionJson = `${JSON.stringify({ version: lumiVersion, sha: lumiSha, date: lumiDate }, null, 2)}\n`;
+
+function noCache(req: Connect.IncomingMessage, res: { setHeader: (name: string, value: string) => void }, next: () => void) {
+  const path = req.url?.split("?")[0] ?? "";
+  if (path.endsWith("/sw.js") || path.endsWith("/version.json")) {
+    const setHeader = res.setHeader.bind(res);
+    res.setHeader = (name: string, value: string) => {
+      if (name.toLowerCase() === "cache-control") return setHeader(name, "no-cache");
+      return setHeader(name, value);
+    };
+    res.setHeader("Cache-Control", "no-cache");
+  }
+  if (path.endsWith("/version.json") && !path.includes("/assets/")) {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+  }
+  next();
+}
+
+function lumiVersionPlugin(): Plugin {
+  return {
+    name: "lumi-version",
+    transformIndexHtml(html) {
+      return html.replace("</head>", `    <meta name="lumi-version" content="${lumiVersion}" />\n  </head>`);
+    },
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: "version.json", source: versionJson });
+    },
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const path = req.url?.split("?")[0] ?? "";
+        if (path === "/lumi/version.json" || path === "/version.json") {
+          res.setHeader("Content-Type", "application/json; charset=utf-8");
+          res.setHeader("Cache-Control", "no-cache");
+          res.end(versionJson);
+          return;
+        }
+        noCache(req, res, next);
+      });
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(noCache);
+    },
+  };
+}
 
 export default defineConfig({
   define: {
@@ -30,8 +76,9 @@ export default defineConfig({
   base: pagesBase,
   plugins: [
     react(),
+    lumiVersionPlugin(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       includeAssets: ["favicon.png", "favicon.svg", "icons/*.png", "data/*.json"],
       manifest: {
         name: "Lumi",
@@ -57,7 +104,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,json,svg,png,jpg,webp,woff2,ico,webmanifest}"],
-        globIgnores: ["**/splash/**", "**/art/lumi/sheet.webp"],
+        globIgnores: ["**/splash/**", "**/art/lumi/sheet.webp", "**/version.json"],
+        clientsClaim: true,
         cacheId: serviceWorkerCacheId(lumiVersion),
         navigateFallback: `${pagesBase}index.html`,
         navigateFallbackAllowlist: [/^\/lumi\//],

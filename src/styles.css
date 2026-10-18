@@ -395,6 +395,26 @@ p { margin: 0.4em 0; }
 .note { background: white; border-radius: 18px; padding: 12px; margin: 8px 0; }
 
 :focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.update-banner {
+  position: fixed;
+  z-index: 35;
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px 8px 8px;
+  background: #fff8ef;
+  color: var(--ink);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+}
+.update-banner .lumi-banner { width: 84px; margin: 0; flex: none; }
+.update-banner p { margin: 0; font-weight: 800; font-size: 1.15rem; flex: 1; }
+.update-banner .primary { width: auto; min-width: 132px; margin: 0; flex: none; }
+html.update-waiting .shell { padding-bottom: 148px; }
+
 @media (prefers-reduced-motion: reduce) {
   .lumi-idle, .lumi-happy, .lumi-cheer, .confetti span { animation: none; }
 }

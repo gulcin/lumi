@@ -6,6 +6,7 @@ export const PROGRESS_KEY = "lumi.progress.v1";
 /** Short line for the child when this version is newer than the one she last opened. */
 const KID_NOTES: Record<string, string> = {
   "1.0.0": "Lumi has new pictures.",
+  "1.1.0": "Your lessons stayed right where you left them.",
 };
 
 export type ReleaseSection = { title: string; items: string[] };

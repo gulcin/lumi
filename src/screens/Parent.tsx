@@ -12,6 +12,7 @@ import { INTEREST_ART } from "../lib/art";
 import { INTERESTS } from "../lib/interests";
 import { PYP_NOTE, themeOf } from "../lib/pyp";
 import { buildInfo, versionLabel } from "../lib/buildInfo";
+import { checkForUpdates } from "../lib/swUpdates";
 import { SyncPanel } from "./SyncPanel";
 import { ChatLog, ThemeProgress, TodayPanel } from "./ParentExtra";
 import { WhatsNew } from "./WhatsNew";
@@ -34,6 +35,8 @@ export function ParentScreen({
   onJournal: () => void;
 }) {
   const [tab, setTab] = useState<"overview" | "news" | "themes" | "today" | "map" | "history" | "backup">("overview");
+  const [updateNote, setUpdateNote] = useState("");
+  const [checking, setChecking] = useState(false);
   const tabs = [
     ["overview", "Overview"],
     ["news", "What's new"],
@@ -56,6 +59,26 @@ export function ParentScreen({
       <p className="version-stamp" data-testid="app-version">
         {versionLabel(buildInfo)}
       </p>
+      <button
+        type="button"
+        className="secondary"
+        data-testid="check-updates"
+        disabled={checking}
+        onClick={() => {
+          setChecking(true);
+          void checkForUpdates().then((note) => {
+            setUpdateNote(note);
+            setChecking(false);
+          });
+        }}
+      >
+        {checking ? "Looking…" : "Check for updates"}
+      </button>
+      {updateNote ? (
+        <p className="muted" role="status" data-testid="update-status">
+          {updateNote}
+        </p>
+      ) : null}
       {tab === "overview" ? <Overview catalog={catalog} progress={progress} onProgress={onProgress} onPlacement={onPlacement} /> : null}
       {tab === "news" ? <WhatsNew /> : null}
       {tab === "themes" ? <ThemeProgress catalog={catalog} progress={progress} /> : null}

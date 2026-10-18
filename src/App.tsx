@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Lumi } from "./components/Lumi";
 import { NewNote } from "./components/NewNote";
 import { buildInfo } from "./lib/buildInfo";
+import { setLessonInProgress } from "./lib/updateState";
 import { dismissKidNotice, kidNoteFor, openKidNotice } from "./lib/version";
 import { buildCatalog } from "./lib/catalog";
 import { hasHandsOn } from "./lib/generators";
@@ -153,6 +154,10 @@ export function App() {
     if (e2e) return;
     if (openKidNotice(localStorage, buildInfo.version)) setKidNew(true);
   }, [e2e]);
+
+  useEffect(() => {
+    setLessonInProgress(screen === "session");
+  }, [screen]);
 
   function commit(next: Progress, source: "local" | "sync" = "local") {
     const stamped = source === "sync" ? next : { ...next, deviceUpdatedAt: Date.now() };

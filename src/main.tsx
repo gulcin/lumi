@@ -6,15 +6,14 @@ import "@fontsource/nunito/800.css";
 import "@fontsource/fredoka/600.css";
 import "./styles.css";
 import { App } from "./App";
+import { UpdateBanner } from "./components/UpdateBanner";
+import { startUpdateChecks } from "./lib/swUpdates";
+
+if (import.meta.env.PROD) startUpdateChecks();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
+    <UpdateBanner />
   </StrictMode>,
 );
-
-if (import.meta.env.PROD) {
-  void import("virtual:pwa-register").then(({ registerSW }) => {
-    registerSW({ immediate: true });
-  });
-}

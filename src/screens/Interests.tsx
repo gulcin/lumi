@@ -1,5 +1,7 @@
 import { useEffect } from "react";
+import { PaintCard } from "../components/Art";
 import { Shell, TopBar } from "../components/Chrome";
+import { INTEREST_ART } from "../lib/art";
 import { INTERESTS } from "../lib/interests";
 import { speak } from "../lib/speech";
 import type { Progress } from "../lib/types";
@@ -28,20 +30,17 @@ export function InterestsScreen({
         {INTERESTS.map((interest) => {
           const on = progress.interests.includes(interest.id);
           return (
-            <button
+            <PaintCard
               key={interest.id}
-              type="button"
-              className={on ? "subject on" : "subject"}
+              art={INTEREST_ART[interest.id] ?? "spots/acorn"}
+              title={interest.label}
+              detail={on ? "Chosen" : "Tap to choose"}
+              on={on}
               onClick={() => {
                 if (speechOn) speak(interest.speak);
                 onToggle(interest.id);
               }}
-            >
-              <strong>
-                {interest.emoji} {interest.label}
-              </strong>
-              <span>{on ? "Chosen" : "Tap to choose"}</span>
-            </button>
+            />
           );
         })}
       </div>

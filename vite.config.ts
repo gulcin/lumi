@@ -11,7 +11,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg", "icons/*.png", "data/*.json"],
+      includeAssets: ["favicon.png", "favicon.svg", "icons/*.png", "data/*.json"],
       manifest: {
         name: "Lumi",
         short_name: "Lumi",
@@ -24,17 +24,20 @@ export default defineConfig({
         scope: pagesBase,
         lang: "en",
         icons: [
-          { src: "icons/icon-192.png", sizes: "192x192", type: "image/png" },
+          { src: "icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
           {
-            src: "icons/icon-512.png",
+            src: "icons/icon-512-maskable.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "maskable",
           },
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,json,svg,png,woff2,ico,webmanifest}"],
+        globPatterns: ["**/*.{js,css,html,json,svg,png,jpg,webp,woff2,ico,webmanifest}"],
+        globIgnores: ["**/splash/**", "**/art/lumi/sheet.webp"],
+        cacheId: "lumi-art-1",
         navigateFallback: `${pagesBase}index.html`,
         navigateFallbackAllowlist: [/^\/lumi\//],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,

@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
+import { Art } from "../components/Art";
 import { Shell, TopBar } from "../components/Chrome";
+import { subjectArt } from "../lib/art";
 import { applyGrownupAnswers, selectPlacementPrompts, type GrownupMark } from "../lib/grownupPlacement";
 import { ageLabel } from "../lib/catalog";
 import type { Catalog, Progress } from "../lib/types";
@@ -24,6 +26,7 @@ export function GrownupPlacementScreen({
   return (
     <Shell wide>
       <TopBar title="Starting point" onBack={onCancel} />
+      <Art name={subjectArt(group.subject)} alt="" className="scene-banner short" />
       <h1 data-testid="grownup-placement">Around grade {progress.startGrade}</h1>
       <p className="lede">
         {group.subject}. For each lesson, say whether this is already in place. Yep seeds that lesson and the hard steps beneath it. Not yet keeps those gaps on the path.

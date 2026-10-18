@@ -1,5 +1,7 @@
 import { useEffect, useMemo } from "react";
+import { Art } from "../components/Art";
 import { Shell, TopBar } from "../components/Chrome";
+import { THEME_ART } from "../lib/art";
 import { ageLabel } from "../lib/catalog";
 import { journeyState, JOURNEY_LABEL } from "../lib/adaptive";
 import { PYP_THEMES } from "../lib/pyp";
@@ -40,6 +42,7 @@ export function ThemePathScreen({
   return (
     <Shell wide>
       <TopBar title={theme.name} onBack={onBack} speechOn={speechOn} onReplay={() => speak(line)} />
+      <Art name={THEME_ART[theme.id]} alt="" className="scene-banner" eager />
       <p className="lede">{theme.blurb}</p>
       <div className="legend" aria-label="Skill map legend">
         <span className="status status-mastered">{JOURNEY_LABEL.mastered}</span>

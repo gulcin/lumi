@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { Art, PaintCard } from "../components/Art";
 import { FooterNote, Shell, Stars, TopBar } from "../components/Chrome";
 import { Lumi } from "../components/Lumi";
 import { acornBalance } from "../lib/acorns";
+import { THEME_ART } from "../lib/art";
 import { levelCopy } from "../lib/placement";
 import { PYP_THEMES } from "../lib/pyp";
 import { syncConfigured } from "../lib/syncClient";
@@ -24,7 +26,7 @@ export function NameScreen({
   return (
     <Shell>
       <TopBar title="Lumi" speechOn={speechOn} onReplay={() => speak(line)} />
-      <Lumi mood="happy" />
+      <Lumi mood="happy" eager />
       <h1>What should I call you?</h1>
       <label className="field">
         <span className="sr">Your name</span>
@@ -85,23 +87,26 @@ export function HomeScreen({
   return (
     <Shell>
       <TopBar title="Lumi" speechOn={speechOn} onToggleSpeech={onToggleSpeech} onReplay={() => speak(line)} />
-      <Lumi mood="idle" wearing={progress.wearing} />
+      <Lumi mood="idle" wearing={progress.wearing} eager />
       <h1>Hi, {name}.</h1>
       <p className="lede">Six big questions. Lessons that climb as far as you want, with no ceiling.</p>
       <Stars count={progress.stars} />
       <p className="muted">
-        {mastered === 0 ? "Your first star skill is waiting." : `${mastered} star ${mastered === 1 ? "skill" : "skills"}.`} {acornBalance(progress)} acorns.
+        {mastered === 0 ? "Your first star skill is waiting." : `${mastered} star ${mastered === 1 ? "skill" : "skills"}.`}{" "}
+        <Art name="spots/acorn" alt="" className="acorn-inline" /> {acornBalance(progress)} acorns.
       </p>
       {progress.placement ? <p className="pill">{levelCopy(progress.placement.level, progress.placement.startGrade ?? progress.startGrade)}</p> : null}
       <BadgeRow progress={progress} />
       <div className="theme-grid" data-testid="theme-home">
         {PYP_THEMES.map((theme) => (
-          <button key={theme.id} type="button" className="subject" onClick={() => onTheme(theme.id)}>
-            <strong>
-              {theme.emoji} {theme.name}
-            </strong>
-            <span>{theme.blurb}</span>
-          </button>
+          <PaintCard
+            key={theme.id}
+            art={THEME_ART[theme.id]}
+            title={theme.name}
+            detail={theme.blurb}
+            eager
+            onClick={() => onTheme(theme.id)}
+          />
         ))}
       </div>
       <button type="button" className="primary" data-testid="home-play" onClick={onPlay}>

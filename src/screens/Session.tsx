@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Art } from "../components/Art";
 import { Shell, TopBar } from "../components/Chrome";
+import { THEME_ART } from "../lib/art";
 import { ExerciseView } from "../components/ExerciseView";
 import { Lumi } from "../components/Lumi";
 import { frontierEnd } from "../lib/adaptive";
@@ -124,9 +126,14 @@ export function SessionScreen({
         {topic.origin === "lumi" ? " · Lumi addition" : ""} · {active.index + 1} of {active.items.length}
       </p>
       <div className="with-lumi">
-        <Lumi mood={feedback ? (feedback.ok ? "happy" : "think") : "idle"} className="lumi-side" wearing={progress.wearing} />
+        <Lumi
+          mood={phase === "reflect" ? "think" : feedback ? (feedback.ok ? "happy" : "think") : showInquiry ? "listen" : "idle"}
+          className="lumi-side"
+          wearing={progress.wearing}
+        />
         {showInquiry ? (
           <article className="card inquiry" data-testid="inquiry">
+            <Art name={THEME_ART[inquiry.themeId]} alt="" className="scene-banner short" />
             <p className="pill">{inquiry.themeName}</p>
             <h2>{inquiry.wonder}</h2>
             <p>{inquiry.centralIdea}</p>

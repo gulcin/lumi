@@ -7,6 +7,8 @@ import { clampGrade, gradeAnchorAge, levelCopy, placementFromScore, MIN_START_GR
 import { exportProgress, importProgress } from "../lib/progress";
 import { syncConfigured } from "../lib/syncClient";
 import { ATTRIBUTION, type Catalog, type Progress, type Topic } from "../lib/types";
+import { Art } from "../components/Art";
+import { INTEREST_ART } from "../lib/art";
 import { INTERESTS } from "../lib/interests";
 import { PYP_NOTE, themeOf } from "../lib/pyp";
 import { SyncPanel } from "./SyncPanel";
@@ -136,7 +138,8 @@ function Overview({
                 onProgress({ ...progress, interests });
               }}
             >
-              {interest.emoji} {interest.label}
+              <Art name={INTEREST_ART[interest.id] ?? "spots/acorn"} alt="" className="chip-art" />
+              {interest.label}
             </button>
           );
         })}

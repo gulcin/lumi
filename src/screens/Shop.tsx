@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Art } from "../components/Art";
 import { Shell, TopBar } from "../components/Chrome";
 import { Lumi } from "../components/Lumi";
 import { acornBalance, buyItem, SHOP_ITEMS } from "../lib/acorns";
@@ -25,7 +26,9 @@ export function ShopScreen({
     <Shell>
       <TopBar title="Acorn shop" onBack={onBack} speechOn={speechOn} onReplay={() => speak(line)} />
       <Lumi mood="happy" wearing={progress.wearing} />
-      <h1 data-testid="acorn-shop">{balance} acorns</h1>
+      <h1 data-testid="acorn-shop">
+        <Art name="spots/acorn" alt="" className="acorn-inline" /> {balance} acorns
+      </h1>
       <p className="lede">Acorns come from careful answers, reflections, and star skills. Quick tapping does not grow them.</p>
       <div className="shop-grid">
         {SHOP_ITEMS.map((item) => {
@@ -35,17 +38,25 @@ export function ShopScreen({
             <button
               key={item.id}
               type="button"
-              className="card"
+              className={worn ? "paint-card on" : "paint-card"}
               onClick={() => {
                 const next = buyItem(progress, item.id, Date.now());
                 if (next) onProgress(next);
                 if (speechOn) speak(owned ? `Wearing ${item.name}.` : item.name);
               }}
             >
-              <strong>
-                {item.emoji} {item.name}
-              </strong>
-              <p className="tiny muted">{owned ? (worn ? "Wearing" : "Wear") : `${item.cost} acorns`}</p>
+              <span className="paint-frame">
+                <Art
+                  name={item.slot === "den" ? `dens/${item.id}` : `wear/${item.id}`}
+                  alt=""
+                  className={item.slot === "den" ? "paint-thumb" : "paint-thumb contain"}
+                  eager
+                />
+              </span>
+              <span className="paint-copy">
+                <strong>{item.name}</strong>
+                <span>{owned ? (worn ? "Wearing" : "Wear") : `${item.cost} acorns`}</span>
+              </span>
             </button>
           );
         })}

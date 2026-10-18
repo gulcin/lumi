@@ -72,7 +72,7 @@ export function ChatScreen({
   return (
     <Shell>
       <TopBar title="Ask Lumi" onBack={onBack} speechOn={speechOn} onReplay={() => speak(reply || line)} />
-      <Lumi mood={listening ? "think" : "happy"} wearing={progress.wearing} />
+      <Lumi mood={listening ? "listen" : "happy"} wearing={progress.wearing} />
       <h1 data-testid="voice-chat">Why?</h1>
       <button
         type="button"

@@ -1,20 +1,11 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Art } from "../components/Art";
 import { Shell, TopBar } from "../components/Chrome";
+import { subjectArt } from "../lib/art";
 import { ageLabel } from "../lib/catalog";
 import { speak } from "../lib/speech";
 import { journeyState, JOURNEY_LABEL, type JourneyState } from "../lib/adaptive";
 import type { Catalog, Progress, Topic } from "../lib/types";
-
-const TINT: Record<string, string> = {
-  Mathematics: "#e07a3d",
-  English: "#1f8a70",
-  Science: "#3d7ea6",
-  History: "#8c4a3a",
-  "Life Skills": "#c4922a",
-  "Personal & Social Development": "#c46b8a",
-  Computing: "#5c6b8a",
-  "Learning to Learn": "#6e8b4a",
-};
 
 const BLURB: Record<string, string> = {
   Mathematics: "Numbers, shapes, and patterns",
@@ -88,16 +79,20 @@ export function ExploreScreen({
           <button
             key={item}
             type="button"
-            className={item === subject ? "subject on" : "subject"}
-            style={{ "--tint": TINT[item] ?? "#ef5d3c" } as CSSProperties}
+            className={item === subject ? "paint-card on" : "paint-card"}
             onClick={() => {
               setSubject(item === subject ? null : item);
               setDomain(null);
               setLimit(40);
             }}
           >
-            <strong>{item}</strong>
-            <span>{BLURB[item] ?? "Lessons"}</span>
+            <span className="paint-frame">
+              <Art name={subjectArt(item)} alt="" className="paint-thumb" />
+            </span>
+            <span className="paint-copy">
+              <strong>{item}</strong>
+              <span>{BLURB[item] ?? "Lessons"}</span>
+            </span>
           </button>
         ))}
       </div>

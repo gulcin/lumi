@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { Shell, TopBar } from "../components/Chrome";
+import { Lumi } from "../components/Lumi";
 import { speak } from "../lib/speech";
 
 export function GateScreen({ speechOn, onCancel, onOpen }: { speechOn: boolean; onCancel: () => void; onOpen: () => void }) {
@@ -40,6 +41,7 @@ export function GateScreen({ speechOn, onCancel, onOpen }: { speechOn: boolean; 
   return (
     <Shell>
       <TopBar title="Grown-ups" onBack={onCancel} onReplay={() => speak(line)} speechOn={speechOn} />
+      <Lumi mood="happy" />
       <h1>A moment for grown-ups</h1>
       <p className="lede">Press and hold until the ring fills.</p>
       <button

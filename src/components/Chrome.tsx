@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Art } from "./Art";
 import { Lumi } from "./Lumi";
 
 export function Shell({
@@ -28,7 +29,7 @@ export function TopBar({
     <header className="topbar">
       {onBack ? (
         <button type="button" className="icon-btn" onClick={onBack} aria-label="Back">
-          ←
+          Back
         </button>
       ) : (
         <span className="topbar-mark">
@@ -39,12 +40,12 @@ export function TopBar({
       <span className="topbar-actions">
         {onReplay ? (
           <button type="button" className="icon-btn" onClick={onReplay} aria-label="Hear that again" data-testid="replay">
-            ♪
+            Hear
           </button>
         ) : null}
         {onToggleSpeech ? (
           <button type="button" className="icon-btn" onClick={onToggleSpeech} aria-label={speechOn ? "Turn speech off" : "Turn speech on"} aria-pressed={speechOn}>
-            {speechOn ? "🔊" : "🔇"}
+            {speechOn ? "Sound" : "Quiet"}
           </button>
         ) : null}
       </span>
@@ -55,7 +56,8 @@ export function TopBar({
 export function Stars({ count }: { count: number }) {
   return (
     <p className="star-line" aria-label={`${count} stars`}>
-      <span aria-hidden="true">★</span> {count} {count === 1 ? "star" : "stars"}
+      <Art name="wear/hat-star" alt="" className="star-mark" />
+      {count} {count === 1 ? "star" : "stars"}
     </p>
   );
 }

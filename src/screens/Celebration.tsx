@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Art } from "../components/Art";
 import { Shell, TopBar } from "../components/Chrome";
 import { Lumi } from "../components/Lumi";
 import { speak } from "../lib/speech";
@@ -49,7 +50,9 @@ export function CelebrationScreen({
       {names.length ? (
         <ul className="mastered-banner" data-testid="mastered-banner">
           {names.map((name) => (
-            <li key={name}>★ {name}</li>
+            <li key={name}>
+            <Art name="wear/hat-star" alt="" className="star-mark" /> {name}
+          </li>
           ))}
         </ul>
       ) : null}

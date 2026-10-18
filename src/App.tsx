@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Lumi } from "./components/Lumi";
 import { buildCatalog } from "./lib/catalog";
 import { hasHandsOn } from "./lib/generators";
 import { planSession, planTopicPractice } from "./lib/adaptive";
@@ -207,6 +208,7 @@ export function App() {
   if (screen === "loading") {
     return (
       <main className="shell">
+        <Lumi mood="sleep" eager />
         <h1>Getting the lesson book…</h1>
       </main>
     );
@@ -214,6 +216,7 @@ export function App() {
   if (screen === "error" || !catalog) {
     return (
       <main className="shell">
+        <Lumi mood="think" />
         <h1>Lumi can't find the lesson book.</h1>
         <p>{error || "Try refreshing this page."}</p>
       </main>

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Art } from "../components/Art";
+import { AREA_ART, THEME_ART } from "../lib/art";
 import { PYP_AREAS, PYP_NOTE, PYP_THEMES } from "../lib/pyp";
 import { buildDailyNotes } from "../lib/parentNote";
 import { fetchChat, loadSyncMeta, polishNote, syncConfigured } from "../lib/syncClient";
@@ -21,10 +23,9 @@ export function ThemeProgress({ catalog, progress }: { catalog: Catalog; progres
       <div className="tallies">
         {rows.map((row) => (
           <article key={row.id} className="card">
+            <Art name={THEME_ART[row.id]} alt="" className="tally-art" />
             <header>
-              <strong>
-                {row.emoji} {row.name}
-              </strong>
+              <strong>{row.name}</strong>
               <span>
                 {row.mastered}/{row.total}
               </span>
@@ -39,6 +40,7 @@ export function ThemeProgress({ catalog, progress }: { catalog: Catalog; progres
       <div className="tallies">
         {areas.map((row) => (
           <article key={row.id} className="card">
+            <Art name={AREA_ART[row.id]} alt="" className="tally-art" />
             <header>
               <strong>{row.name}</strong>
               <span>

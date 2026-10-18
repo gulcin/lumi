@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Shell, TopBar } from "../components/Chrome";
+import { Lumi } from "../components/Lumi";
 import { deleteJournalPhoto, FACE_REMINDER, listJournalPhotos, saveJournalPhoto, downscaleImage, type JournalPhoto } from "../lib/journal";
 import { speak } from "../lib/speech";
 
@@ -75,9 +76,19 @@ export function JournalScreen({
           }}
         />
       </label>
-      {cheer ? <p className="lede" data-testid="journal-cheer">{cheer}</p> : null}
+      {cheer ? (
+        <>
+          <Lumi mood="cheer" />
+          <p className="lede" data-testid="journal-cheer">{cheer}</p>
+        </>
+      ) : null}
       <div className="journal-grid">
-        {photos.length === 0 ? <p className="muted">No photos yet. They stay in this browser and are never uploaded.</p> : null}
+        {photos.length === 0 ? (
+          <>
+            <Lumi mood="sleep" />
+            <p className="muted">No photos yet. They stay in this browser and are never uploaded.</p>
+          </>
+        ) : null}
         {photos.map((photo) => (
           <article key={photo.id} className="card">
             {urls[photo.id] ? <img src={urls[photo.id]} alt="" /> : null}

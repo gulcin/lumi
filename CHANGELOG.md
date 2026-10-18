@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-10-18
+
+Words stay a comfortable size on iPhone and iPad, even when the system text size is large.
+
+### Fixed
+
+- iOS was enlarging every word. Lumi now keeps its own type scale, so a lesson still fits the screen.
+
 ## [1.1.1] - 2026-10-18
 
 The home screen icon is the painted fox, including on an iPhone.
@@ -49,6 +57,7 @@ First marked version. This is Lumi as it stands for Aida: a grade 3 learning app
 - Painted storybook pictures: Lumi happy, thinking, listening, celebrating, and sleeping; a scene for each of the six themes; and a picture for each subject.
 - A version in Grown-ups, a What's new page, and a short New! note for her after an update.
 
+[1.1.2]: https://github.com/gulcin/lumi/releases/tag/v1.1.2
 [1.1.1]: https://github.com/gulcin/lumi/releases/tag/v1.1.1
 [1.1.0]: https://github.com/gulcin/lumi/releases/tag/v1.1.0
 [1.0.0]: https://github.com/gulcin/lumi/releases/tag/v1.0.0

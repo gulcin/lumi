@@ -33,6 +33,10 @@ jobs:
         run: npm run build
         env:
           VITE_LUMI_API_URL: ${{ vars.VITE_LUMI_API_URL }}
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Type scale
+        run: npm run verify:type
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

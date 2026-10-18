@@ -121,5 +121,7 @@ export function startUpdateChecks(): void {
     });
     window.setInterval(look, CHECK_INTERVAL_MS);
     look();
+  }).catch(() => {
+    // A browser that blocks the worker still runs the lessons.
   });
 }

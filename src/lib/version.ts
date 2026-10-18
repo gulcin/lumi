@@ -8,6 +8,7 @@ const KID_NOTES: Record<string, string> = {
   "1.0.0": "Lumi has new pictures.",
   "1.1.0": "Your lessons stayed right where you left them.",
   "1.1.1": "You can see Lumi on your home screen.",
+  "1.1.2": "The words are the right size.",
 };
 
 export type ReleaseSection = { title: string; items: string[] };

@@ -11,8 +11,10 @@ import { Art } from "../components/Art";
 import { INTEREST_ART } from "../lib/art";
 import { INTERESTS } from "../lib/interests";
 import { PYP_NOTE, themeOf } from "../lib/pyp";
+import { buildInfo, versionLabel } from "../lib/buildInfo";
 import { SyncPanel } from "./SyncPanel";
 import { ChatLog, ThemeProgress, TodayPanel } from "./ParentExtra";
+import { WhatsNew } from "./WhatsNew";
 
 export function ParentScreen({
   catalog,
@@ -31,9 +33,10 @@ export function ParentScreen({
   onPlacement: () => void;
   onJournal: () => void;
 }) {
-  const [tab, setTab] = useState<"overview" | "themes" | "today" | "map" | "history" | "backup">("overview");
+  const [tab, setTab] = useState<"overview" | "news" | "themes" | "today" | "map" | "history" | "backup">("overview");
   const tabs = [
     ["overview", "Overview"],
+    ["news", "What's new"],
     ["themes", "PYP themes"],
     ["today", "Today"],
     ["map", "Prerequisite map"],
@@ -50,7 +53,11 @@ export function ParentScreen({
           </button>
         ))}
       </div>
+      <p className="version-stamp" data-testid="app-version">
+        {versionLabel(buildInfo)}
+      </p>
       {tab === "overview" ? <Overview catalog={catalog} progress={progress} onProgress={onProgress} onPlacement={onPlacement} /> : null}
+      {tab === "news" ? <WhatsNew /> : null}
       {tab === "themes" ? <ThemeProgress catalog={catalog} progress={progress} /> : null}
       {tab === "today" ? <TodayPanel catalog={catalog} progress={progress} /> : null}
       {tab === "map" ? <MapView catalog={catalog} progress={progress} onProgress={onProgress} /> : null}

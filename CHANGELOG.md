@@ -1,0 +1,32 @@
+# Changelog
+
+All notable changes to Lumi are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [1.0.0] - 2026-10-18
+
+First marked version. This is Lumi as it stands for Aida: a grade 3 learning app on the iPad, with painted pictures and a path that can climb as far as she wants.
+
+### Added
+
+- Adaptive lessons from the Marble skill map. The path steps down when something is shaky and climbs with no ceiling. There is no daily time limit.
+- A home a child can use on an iPad, with practice, a line she can hear, and an icon and startup picture for the home screen.
+- Grade 3 as the usual starting point. A grown-up can set a different grade. Lessons still move down and up from there.
+- The six PYP themes as paths through the lessons. Each lesson opens with an original "I wonder…" question, then the activity. A reflect step and learner-profile badges sit beside the work. The theme map is unofficial. The International Baccalaureate does not endorse Lumi.
+- Stone Age lessons, including caves and mammoths, that lead on toward Ancient Egypt.
+- A grown-up starting check of three questions in each subject, as the first step on the home screen. A shorter child warm-up is still there.
+- Interests that lean the next ready lesson toward what she loves, and never skip a prerequisite.
+- A lesson map with three states: Mastered, Lumi's working on, and Coming up.
+- Acorns for careful answers, reflection, and mastery. The shop lets Lumi wear a hat, a scarf, and glasses, or rest in a den.
+- A photo journal that stays in the browser on this iPad and is never uploaded.
+- A daily note for grown-ups, with an idea for off the screen, including something around dinner.
+- Family sync of the nickname and lesson progress only. The journal is not part of sync.
+- A why-chat for questions about the lesson, when the family connection is set up.
+- Painted storybook pictures: Lumi happy, thinking, listening, celebrating, and sleeping; a scene for each of the six themes; and a picture for each subject.
+- A version in Grown-ups, a What's new page, and a short New! note for her after an update.
+
+[1.0.0]: https://github.com/gulcin/lumi/releases/tag/v1.0.0

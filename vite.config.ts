@@ -1,11 +1,32 @@
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { serviceWorkerCacheId } from "./src/lib/version";
 
 // Project site: https://gulcin.github.io/lumi/
 const pagesBase = "/lumi/";
+const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string };
+
+function gitValue(command: string, fallback: string): string {
+  try {
+    return execSync(command, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim() || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+const lumiVersion = process.env.LUMI_VERSION || pkg.version;
+const lumiSha = process.env.LUMI_GIT_SHA || gitValue("git rev-parse --short=7 HEAD", "dev");
+const lumiDate = process.env.LUMI_BUILD_DATE || gitValue("git log -1 --format=%cs", new Date().toISOString().slice(0, 10));
 
 export default defineConfig({
+  define: {
+    __LUMI_VERSION__: JSON.stringify(lumiVersion),
+    __LUMI_SHA__: JSON.stringify(lumiSha),
+    __LUMI_DATE__: JSON.stringify(lumiDate),
+  },
   base: pagesBase,
   plugins: [
     react(),
@@ -37,7 +58,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,json,svg,png,jpg,webp,woff2,ico,webmanifest}"],
         globIgnores: ["**/splash/**", "**/art/lumi/sheet.webp"],
-        cacheId: "lumi-art-1",
+        cacheId: serviceWorkerCacheId(lumiVersion),
         navigateFallback: `${pagesBase}index.html`,
         navigateFallbackAllowlist: [/^\/lumi\//],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,

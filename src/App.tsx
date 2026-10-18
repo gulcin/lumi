@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Lumi } from "./components/Lumi";
+import { NewNote } from "./components/NewNote";
+import { buildInfo } from "./lib/buildInfo";
+import { dismissKidNotice, kidNoteFor, openKidNotice } from "./lib/version";
 import { buildCatalog } from "./lib/catalog";
 import { hasHandsOn } from "./lib/generators";
 import { planSession, planTopicPractice } from "./lib/adaptive";
@@ -57,6 +60,7 @@ export function App() {
   const [afterGate, setAfterGate] = useState<"parent" | "gplace">("parent");
   const kickSync = useRef<() => void>(() => {});
   const e2e = new URLSearchParams(window.location.search).has("e2e");
+  const [kidNew, setKidNew] = useState(false);
 
   useEffect(() => {
     let cancel = false;
@@ -144,6 +148,11 @@ export function App() {
       document.removeEventListener("visibilitychange", onShow);
     };
   }, []);
+
+  useEffect(() => {
+    if (e2e) return;
+    if (openKidNotice(localStorage, buildInfo.version)) setKidNew(true);
+  }, [e2e]);
 
   function commit(next: Progress, source: "local" | "sync" = "local") {
     const stamped = source === "sync" ? next : { ...next, deviceUpdatedAt: Date.now() };
@@ -236,6 +245,18 @@ export function App() {
   }
   if (screen === "home") {
     return (
+      <>
+      {kidNew ? (
+        <NewNote
+          note={kidNoteFor(buildInfo.version)}
+          wearing={progress.wearing}
+          speechOn={progress.speechOn}
+          onClose={() => {
+            dismissKidNotice(localStorage, buildInfo.version);
+            setKidNew(false);
+          }}
+        />
+      ) : null}
       <HomeScreen
         progress={progress}
         speechOn={progress.speechOn}
@@ -265,6 +286,7 @@ export function App() {
         }}
         onChat={() => setScreen("chat")}
       />
+      </>
     );
   }
   if (screen === "theme") {

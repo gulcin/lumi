@@ -6,6 +6,7 @@ import "@fontsource/nunito/800.css";
 import "@fontsource/fredoka/600.css";
 import "./styles.css";
 import { App } from "./App";
+import { TellUs } from "./components/TellUs";
 import { UpdateBanner } from "./components/UpdateBanner";
 import { startUpdateChecks } from "./lib/swUpdates";
 
@@ -14,6 +15,7 @@ if (import.meta.env.PROD) startUpdateChecks();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
+    <TellUs />
     <UpdateBanner />
   </StrictMode>,
 );

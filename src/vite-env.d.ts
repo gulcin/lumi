@@ -3,6 +3,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_LUMI_API_URL?: string;
+  readonly VITE_FEEDBACK_URL?: string;
 }
 
 interface ImportMeta {

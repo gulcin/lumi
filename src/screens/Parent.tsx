@@ -13,6 +13,7 @@ import { INTERESTS } from "../lib/interests";
 import { PYP_NOTE, themeOf } from "../lib/pyp";
 import { buildInfo, versionLabel } from "../lib/buildInfo";
 import { checkForUpdates } from "../lib/swUpdates";
+import { ReportList } from "../components/TellUs";
 import { SyncPanel } from "./SyncPanel";
 import { ChatLog, ThemeProgress, TodayPanel } from "./ParentExtra";
 import { WhatsNew } from "./WhatsNew";
@@ -34,7 +35,7 @@ export function ParentScreen({
   onPlacement: () => void;
   onJournal: () => void;
 }) {
-  const [tab, setTab] = useState<"overview" | "news" | "themes" | "today" | "map" | "history" | "backup">("overview");
+  const [tab, setTab] = useState<"overview" | "news" | "themes" | "today" | "map" | "history" | "backup" | "reports">("overview");
   const [updateNote, setUpdateNote] = useState("");
   const [checking, setChecking] = useState(false);
   const tabs = [
@@ -45,6 +46,7 @@ export function ParentScreen({
     ["map", "Prerequisite map"],
     ["history", "Sessions"],
     ["backup", "Backup"],
+    ["reports", "Reports"],
   ] as const;
   return (
     <Shell wide>
@@ -94,6 +96,12 @@ export function ParentScreen({
         </>
       ) : null}
       {tab === "backup" ? <Backup progress={progress} onProgress={onProgress} onRename={onRename} /> : null}
+      {tab === "reports" ? (
+        <section>
+          <h1>Notes for us</h1>
+          <ReportList />
+        </section>
+      ) : null}
       <FooterNote text={ATTRIBUTION} />
     </Shell>
   );

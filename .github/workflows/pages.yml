@@ -33,10 +33,13 @@ jobs:
         run: npm run build
         env:
           VITE_LUMI_API_URL: ${{ vars.VITE_LUMI_API_URL }}
+          VITE_FEEDBACK_URL: https://lumi-api.gulcin-lumi.workers.dev
       - name: Install browser
         run: npx playwright install --with-deps chromium
       - name: Type scale
         run: npm run verify:type
+      - name: Screen sanity
+        run: npm run verify:screens
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

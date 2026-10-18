@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-18
+
+Aida can tell us about a bug or an idea from any screen.
+
+### Added
+
+- A small painted Tell us button on every screen. She picks Bug or Idea, types or says a note, and the screen she is on is remembered.
+- The note is saved for grown-ups. When the family connection can take it, Lumi sends it on. Until then, Send to Mum opens a letter with the details.
+
 ## [1.1.2] - 2026-10-18
 
 Words stay a comfortable size on iPhone and iPad, even when the system text size is large.
@@ -57,6 +66,7 @@ First marked version. This is Lumi as it stands for Aida: a grade 3 learning app
 - Painted storybook pictures: Lumi happy, thinking, listening, celebrating, and sleeping; a scene for each of the six themes; and a picture for each subject.
 - A version in Grown-ups, a What's new page, and a short New! note for her after an update.
 
+[1.2.0]: https://github.com/gulcin/lumi/releases/tag/v1.2.0
 [1.1.2]: https://github.com/gulcin/lumi/releases/tag/v1.1.2
 [1.1.1]: https://github.com/gulcin/lumi/releases/tag/v1.1.1
 [1.1.0]: https://github.com/gulcin/lumi/releases/tag/v1.1.0

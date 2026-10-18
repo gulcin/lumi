@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Art } from "./Art";
 import { Lumi } from "./Lumi";
+import { TellButton } from "./TellUs";
 
 export function Shell({
   children,
@@ -38,6 +39,7 @@ export function TopBar({
       )}
       <strong>{title}</strong>
       <span className="topbar-actions">
+        <TellButton />
         {onReplay ? (
           <button type="button" className="icon-btn" onClick={onReplay} aria-label="Hear that again" data-testid="replay">
             Hear

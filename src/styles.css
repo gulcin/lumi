@@ -48,11 +48,32 @@ p { margin: 0.4em 0; }
 .topbar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 8px;
 }
 .topbar strong { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: "Fredoka", sans-serif; font-size: 1.15rem; }
-.topbar-actions, .topbar-mark { display: flex; gap: 8px; align-items: center; }
+.topbar-actions, .topbar-mark { display: flex; gap: 6px; align-items: center; flex: none; }
+.tell-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 0 10px 0 2px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff8ef;
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.tell-btn .lumi-tiny { width: 36px; }
+@media (max-width: 480px) {
+  .topbar { gap: 6px; }
+  .icon-btn { min-width: 44px; height: 44px; padding: 0 8px; }
+  .tell-btn { padding-right: 8px; }
+  .tell-btn .lumi-tiny { width: 32px; }
+}
 .icon-btn, .text-btn, .ghost, .primary, .secondary, .choice, .chip, .subject, .topic-row, .hold {
   border: 0;
   border-radius: 999px;
@@ -420,6 +441,59 @@ p { margin: 0.4em 0; }
 .update-banner p { margin: 0; font-weight: 800; font-size: 1.15rem; flex: 1; }
 .update-banner .primary { width: auto; min-width: 132px; margin: 0; flex: none; }
 html.update-waiting .shell { padding-bottom: 148px; }
+
+.tell-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  background: rgba(59, 36, 24, 0.28);
+}
+.tell-card {
+  width: min(440px, 100%);
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  padding: 12px 16px 8px;
+  background: #fff8ef;
+  color: var(--ink);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.tell-card h1 { margin-top: 0; }
+.tell-card .lumi-tiny { width: 40px; }
+.tell-card .field { margin: 8px 0; }
+.tell-card .primary,
+.tell-card .secondary { min-height: 56px; margin: 6px 0; }
+.tell-card .text-btn { min-height: 44px; margin: 2px 0 0; }
+.tell-card .field textarea {
+  width: 100%;
+  min-height: 76px;
+  border: 0;
+  border-radius: 18px;
+  padding: 12px;
+  background: white;
+  box-shadow: var(--shadow);
+  resize: none;
+}
+.tell-kinds { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tell-kind {
+  min-height: 72px;
+  border: 3px solid transparent;
+  border-radius: 22px;
+  background: white;
+  box-shadow: var(--shadow);
+  font-weight: 800;
+  font-size: 1.15rem;
+  display: grid;
+  justify-items: center;
+  padding: 6px;
+}
+.tell-kind.on { border-color: var(--teal); }
+.tell-kind .lumi-tiny { width: 48px; }
+.tell-send { text-decoration: none; display: grid; place-items: center; }
 
 @media (prefers-reduced-motion: reduce) {
   .lumi-idle, .lumi-happy, .lumi-cheer, .confetti span { animation: none; }

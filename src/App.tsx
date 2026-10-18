@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Lumi } from "./components/Lumi";
+import { TellButton } from "./components/TellUs";
 import { NewNote } from "./components/NewNote";
 import { buildInfo } from "./lib/buildInfo";
+import { setFeedbackPlace } from "./lib/feedbackPlace";
 import { setLessonInProgress } from "./lib/updateState";
 import { dismissKidNotice, kidNoteFor, openKidNotice } from "./lib/version";
 import { buildCatalog } from "./lib/catalog";
@@ -157,7 +159,16 @@ export function App() {
 
   useEffect(() => {
     setLessonInProgress(screen === "session");
+    window.scrollTo(0, 0);
   }, [screen]);
+
+  useEffect(() => {
+    const active = progress.active;
+    const topic = catalog && active ? catalog.byId.get(active.items[active.index]?.topicId ?? "") : undefined;
+    const lesson = screen === "session" ? topic?.name ?? "" : screen === "peek" ? peek?.name ?? "" : "";
+    const skill = screen === "session" ? topic?.id ?? "" : screen === "peek" ? peek?.id ?? "" : "";
+    setFeedbackPlace({ screen, lesson, skill });
+  }, [screen, progress, catalog, peek]);
 
   function commit(next: Progress, source: "local" | "sync" = "local") {
     const stamped = source === "sync" ? next : { ...next, deviceUpdatedAt: Date.now() };
@@ -222,7 +233,13 @@ export function App() {
   if (screen === "loading") {
     return (
       <main className="shell">
-        <Lumi mood="sleep" eager />
+        <header className="topbar">
+          <span className="topbar-mark">
+            <Lumi className="lumi-tiny" mood="sleep" />
+          </span>
+          <strong>Lumi</strong>
+          <TellButton />
+        </header>
         <h1>Getting the lesson book…</h1>
       </main>
     );
@@ -230,7 +247,13 @@ export function App() {
   if (screen === "error" || !catalog) {
     return (
       <main className="shell">
-        <Lumi mood="think" />
+        <header className="topbar">
+          <span className="topbar-mark">
+            <Lumi className="lumi-tiny" mood="think" />
+          </span>
+          <strong>Lumi</strong>
+          <TellButton />
+        </header>
         <h1>Lumi can't find the lesson book.</h1>
         <p>{error || "Try refreshing this page."}</p>
       </main>

@@ -43,8 +43,23 @@ function noCache(req: Connect.IncomingMessage, res: { setHeader: (name: string, 
 function lumiVersionPlugin(): Plugin {
   return {
     name: "lumi-version",
-    transformIndexHtml(html) {
-      return html.replace("</head>", `    <meta name="lumi-version" content="${lumiVersion}" />\n  </head>`);
+    transformIndexHtml: {
+      order: "post",
+      handler(html) {
+        const icons = [
+          '<link rel="apple-touch-icon" sizes="180x180" href="/lumi/apple-touch-icon.png" />',
+          '<link rel="apple-touch-icon" sizes="167x167" href="/lumi/apple-touch-icon-167.png" />',
+          '<link rel="apple-touch-icon" sizes="152x152" href="/lumi/apple-touch-icon-152.png" />',
+          '<link rel="apple-touch-icon" href="/lumi/apple-touch-icon-precomposed.png" />',
+        ]
+          .map((link) => `    ${link}`)
+          .join("\n");
+        let next = html.replace(/\s*<link rel="apple-touch-icon"[^>]*>/g, "");
+        if (!next.includes('name="lumi-version"')) {
+          next = next.replace("</head>", `    <meta name="lumi-version" content="${lumiVersion}" />\n  </head>`);
+        }
+        return next.replace("</head>", `${icons}\n  </head>`);
+      },
     },
     generateBundle() {
       this.emitFile({ type: "asset", fileName: "version.json", source: versionJson });
@@ -79,7 +94,8 @@ export default defineConfig({
     lumiVersionPlugin(),
     VitePWA({
       registerType: "prompt",
-      includeAssets: ["favicon.png", "favicon.svg", "icons/*.png", "data/*.json"],
+      includeAssets: ["data/*.json"],
+      includeManifestIcons: false,
       manifest: {
         name: "Lumi",
         short_name: "Lumi",
@@ -104,11 +120,22 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,json,svg,png,jpg,webp,woff2,ico,webmanifest}"],
-        globIgnores: ["**/splash/**", "**/art/lumi/sheet.webp", "**/version.json"],
+        globIgnores: [
+          "**/splash/**",
+          "**/art/lumi/sheet.webp",
+          "**/version.json",
+          "**/apple-touch-icon*.png",
+          "**/icons/**",
+          "**/favicon.png",
+          "**/favicon.svg",
+          "**/sw-icon-bypass.js",
+        ],
+        importScripts: ["/lumi/sw-icon-bypass.js"],
         clientsClaim: true,
         cacheId: serviceWorkerCacheId(lumiVersion),
         navigateFallback: `${pagesBase}index.html`,
         navigateFallbackAllowlist: [/^\/lumi\//],
+        navigateFallbackDenylist: [/apple-touch-icon/i, /\/icons\//i, /favicon\.(?:png|svg|ico)$/i],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
     }),

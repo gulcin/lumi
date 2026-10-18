@@ -25,13 +25,13 @@ const changelog = readFileSync(new URL("../CHANGELOG.md", import.meta.url), "utf
 const viteConfig = readFileSync(new URL("../vite.config.ts", import.meta.url), "utf8");
 
 describe("Lumi version", () => {
-  it("stamps semver 1.1.0 at build time", () => {
-    expect(pkg.version).toBe("1.1.0");
+  it("stamps semver 1.1.1 at build time", () => {
+    expect(pkg.version).toBe("1.1.1");
     expect(buildInfo.version).toBe(pkg.version);
     expect(buildInfo.sha).toMatch(/^[0-9a-f]{7,}$|^dev$/);
     expect(buildInfo.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(versionLabel()).toBe(`v1.1.0 · ${buildInfo.sha} · ${buildInfo.date}`);
-    expect(serviceWorkerCacheId(pkg.version)).toBe("lumi-v1.1.0");
+    expect(versionLabel()).toBe(`v1.1.1 · ${buildInfo.sha} · ${buildInfo.date}`);
+    expect(serviceWorkerCacheId(pkg.version)).toBe("lumi-v1.1.1");
     expect(viteConfig).toContain("cacheId: serviceWorkerCacheId(lumiVersion)");
     expect(viteConfig).toContain('registerType: "prompt"');
     expect(viteConfig).toContain('return setHeader(name, "no-cache")');
@@ -39,11 +39,14 @@ describe("Lumi version", () => {
 
   it("reads the Keep a Changelog entries", () => {
     const notes = parseChangelog(changelog);
-    expect(notes[0]?.version).toBe("1.1.0");
+    expect(notes[0]?.version).toBe("1.1.1");
     expect(notes[0]?.date).toBe("2026-10-18");
-    expect(notes.map((note) => note.version)).toEqual(["1.1.0", "1.0.0"]);
-    expect(notes[0]?.intro.join(" ")).toMatch(/home screen/i);
-    expect(notes[0]?.sections.find((section) => section.title === "Added")?.items.join(" ")).toMatch(/Lumi learned something new/);
+    expect(notes.map((note) => note.version)).toEqual(["1.1.1", "1.1.0", "1.0.0"]);
+    expect(notes[0]?.intro.join(" ")).toMatch(/painted fox/i);
+    expect(notes[0]?.sections.find((section) => section.title === "Fixed")?.items.join(" ")).toMatch(/apple-touch-icon/);
+    const update = notes.find((note) => note.version === "1.1.0");
+    expect(update?.intro.join(" ")).toMatch(/home screen/i);
+    expect(update?.sections.find((section) => section.title === "Added")?.items.join(" ")).toMatch(/Lumi learned something new/);
     const first = notes.find((note) => note.version === "1.0.0");
     const added = first?.sections.find((section) => section.title === "Added");
     expect(added?.items.length).toBeGreaterThan(5);
@@ -52,6 +55,7 @@ describe("Lumi version", () => {
     expect(first?.intro.join(" ")).toMatch(/grade 3/i);
     expect(kidNoteFor("1.0.0")).toMatch(/pictures/);
     expect(kidNoteFor("1.1.0")).toMatch(/lessons stayed/i);
+    expect(kidNoteFor("1.1.1")).toMatch(/home screen/i);
     expect(kidNoteFor("9.9.9").length).toBeGreaterThan(0);
   });
 

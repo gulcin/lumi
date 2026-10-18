@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-Open the printed local URL and add `/lumi/` (for example `http://127.0.0.1:4179/lumi/`). The app is built for that subpath so it matches GitHub Pages. On an iPad or iPhone, use Safari, then Share → Add to Home Screen. The first load caches the app so later visits work offline, including on a plane. When a newer Lumi is published, the home-screen app looks on open, when you come back to it, and about every 30 minutes. A banner says Lumi learned something new, and one tap updates it in place. A lesson already on screen waits until the next time the app is opened. Progress stays in the same `lumi.progress.v1` key.
+Open the printed local URL and add `/lumi/` (for example `http://127.0.0.1:4179/lumi/`). The app is built for that subpath so it matches GitHub Pages. On an iPad or iPhone, use Safari, then Share → Add to Home Screen. The icon is the painted fox, at `apple-touch-icon.png`. The first load caches the app so later visits work offline, including on a plane. When a newer Lumi is published, the home-screen app looks on open, when you come back to it, and about every 30 minutes. A banner says Lumi learned something new, and one tap updates it in place. A lesson already on screen waits until the next time the app is opened. Progress stays in the same `lumi.progress.v1` key.
 
 `npm run dev` prepares the taxonomy file, then starts Vite.
 

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-18
+
+The home screen icon is the painted fox, including on an iPhone.
+
+### Fixed
+
+- Add to Home Screen was showing a plain letter L. iOS now gets an opaque fox picture at apple-touch-icon.png, including the 180, 167, and 152 sizes, and the service worker leaves those pictures on the network.
+
 ## [1.1.0] - 2026-10-18
 
 Lumi can take an update on the iPad home screen, without opening the website again.
@@ -41,5 +49,6 @@ First marked version. This is Lumi as it stands for Aida: a grade 3 learning app
 - Painted storybook pictures: Lumi happy, thinking, listening, celebrating, and sleeping; a scene for each of the six themes; and a picture for each subject.
 - A version in Grown-ups, a What's new page, and a short New! note for her after an update.
 
+[1.1.1]: https://github.com/gulcin/lumi/releases/tag/v1.1.1
 [1.1.0]: https://github.com/gulcin/lumi/releases/tag/v1.1.0
 [1.0.0]: https://github.com/gulcin/lumi/releases/tag/v1.0.0

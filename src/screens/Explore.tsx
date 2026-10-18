@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Shell, TopBar } from "../components/Chrome";
 import { ageLabel } from "../lib/catalog";
 import { speak } from "../lib/speech";
-import { topicStatus } from "../lib/adaptive";
-import type { Catalog, Progress, Topic, TopicStatus } from "../lib/types";
+import { journeyState, JOURNEY_LABEL, type JourneyState } from "../lib/adaptive";
+import type { Catalog, Progress, Topic } from "../lib/types";
 
 const TINT: Record<string, string> = {
   Mathematics: "#e07a3d",
@@ -27,12 +27,10 @@ const BLURB: Record<string, string> = {
   "Learning to Learn": "How you learn",
 };
 
-const STATUS_LABEL: Record<TopicStatus, string> = {
-  mastered: "Star skill",
-  practicing: "Practising",
-  ready: "Ready",
-  later: "Bigger step",
-  earlier: "Earlier step",
+const STATUS_CLASS: Record<JourneyState, string> = {
+  mastered: "status-mastered",
+  working: "status-practicing",
+  coming: "status-later",
 };
 
 export function ExploreScreen({
@@ -118,16 +116,17 @@ export function ExploreScreen({
       {subject || query.trim() ? (
         <div className="topic-list">
           {results.slice(0, limit).map((topic) => {
-            const status = topicStatus(topic, catalog, progress);
+            const state = journeyState(topic, catalog, progress);
             return (
               <button key={topic.id} type="button" className="topic-row" onClick={() => onOpen(topic)}>
                 <span>
                   <strong>{topic.name}</strong>
                   <small>
-                    {topic.domain} · {ageLabel(topic)}
+                    {topic.domain}
+                    {topic.origin === "lumi" ? " · Lumi addition" : ""} · {ageLabel(topic)}
                   </small>
                 </span>
-                <em className={`status status-${status}`}>{STATUS_LABEL[status]}</em>
+                <em className={`status ${STATUS_CLASS[state]}`}>{JOURNEY_LABEL[state]}</em>
               </button>
             );
           })}
@@ -139,7 +138,14 @@ export function ExploreScreen({
           ) : null}
         </div>
       ) : (
-        <p className="lede">Every subject in the Marble curriculum is here. Nothing is locked away from you.</p>
+        <>
+          <div className="legend" aria-label="Skill map legend">
+            <span className="status status-mastered">{JOURNEY_LABEL.mastered}</span>
+            <span className="status status-practicing">{JOURNEY_LABEL.working}</span>
+            <span className="status status-later">{JOURNEY_LABEL.coming}</span>
+          </div>
+          <p className="lede">Every subject is here, including Lumi's Stone Age additions. Nothing is locked away from you.</p>
+        </>
       )}
     </Shell>
   );
@@ -160,21 +166,22 @@ export function TopicPeek({
   onBack: () => void;
   onStart: () => void;
 }) {
-  const status = topicStatus(topic, catalog, progress);
+  const state = journeyState(topic, catalog, progress);
   const line = `${topic.name}. ${topic.description}`;
   useEffect(() => {
-    if (speechOn) speak(`${topic.name}. ${status === "later" ? "This is a bigger step. You can still try it." : "Let's try it."}`);
-  }, [speechOn, topic.name, status]);
+    if (speechOn) speak(`${topic.name}. ${state === "coming" ? "This one is coming up. You can still try it." : "Let's try it."}`);
+  }, [speechOn, topic.name, state]);
   return (
     <Shell>
       <TopBar title={topic.subject} onBack={onBack} onReplay={() => speak(line)} speechOn={speechOn} />
-      <p className={`status status-${status}`}>{STATUS_LABEL[status]}</p>
+      <p className={`status ${STATUS_CLASS[state]}`}>{JOURNEY_LABEL[state]}</p>
       <h1>{topic.name}</h1>
       <p className="muted">
-        {topic.domain} · {ageLabel(topic)}
+        {topic.domain}
+        {topic.origin === "lumi" ? " · Lumi addition" : ""} · {ageLabel(topic)}
       </p>
       <p className="lede">{topic.description}</p>
-      {status === "later" ? <p>Some earlier lessons usually come first. You can still try this one.</p> : null}
+      {state === "coming" ? <p>Some earlier lessons usually come first. You can still try this one.</p> : null}
       <button type="button" className="primary" data-testid="start-topic" onClick={onStart}>
         Try this lesson
       </button>

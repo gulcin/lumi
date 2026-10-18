@@ -1,19 +1,34 @@
 import { evaluateMastery, emptyTopicState, reviewDelayMs, HOUR_MS } from "./mastery";
+import { clampGrade, DEFAULT_START_GRADE } from "./placement";
 import type { ActiveSession, Attempt, Progress, SessionRecord, TopicState } from "./types";
 
 export const STORAGE_KEY = "lumi.progress.v1";
+
+function newChildKey(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  return `child_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
 
 export function emptyProgress(now = Date.now()): Progress {
   return {
     version: 1,
     childName: "friend",
+    childKey: newChildKey(),
     named: false,
     speechOn: true,
     soundOn: true,
     stars: 0,
+    startGrade: DEFAULT_START_GRADE,
     topics: {},
     sessions: [],
     createdAt: now,
+    deviceUpdatedAt: now,
+    badges: {},
+    badgeLog: [],
+    interests: [],
+    acornEvents: [],
+    owned: [],
+    wearing: {},
   };
 }
 
@@ -21,7 +36,7 @@ export function loadProgress(): Progress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyProgress();
-    return normalize(JSON.parse(raw));
+    return normalizeProgress(JSON.parse(raw));
   } catch {
     return emptyProgress();
   }
@@ -31,23 +46,34 @@ export function saveProgress(progress: Progress): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
 }
 
-function normalize(value: unknown): Progress {
+export function normalizeProgress(value: unknown): Progress {
   if (!value || typeof value !== "object") throw new Error("empty");
   const record = value as Partial<Progress>;
   if (record.version !== 1 || typeof record.childName !== "string" || !record.topics || typeof record.topics !== "object") {
     throw new Error("invalid");
   }
+  const createdAt = typeof record.createdAt === "number" ? record.createdAt : Date.now();
+  const base = emptyProgress(createdAt);
   return {
-    ...emptyProgress(typeof record.createdAt === "number" ? record.createdAt : Date.now()),
+    ...base,
     ...record,
     version: 1,
     childName: record.childName.slice(0, 24),
+    childKey: typeof record.childKey === "string" && record.childKey.length > 8 ? record.childKey.slice(0, 80) : base.childKey,
     named: Boolean(record.named),
     speechOn: record.speechOn !== false,
     soundOn: record.soundOn !== false,
     stars: typeof record.stars === "number" ? record.stars : 0,
+    startGrade: clampGrade(record.startGrade),
     topics: record.topics as Progress["topics"],
-    sessions: Array.isArray(record.sessions) ? record.sessions : [],
+    sessions: Array.isArray(record.sessions) ? record.sessions.slice(0, 40) : [],
+    deviceUpdatedAt: typeof record.deviceUpdatedAt === "number" ? record.deviceUpdatedAt : createdAt,
+    badges: record.badges && typeof record.badges === "object" ? record.badges : {},
+    badgeLog: Array.isArray(record.badgeLog) ? record.badgeLog.slice(-200) : [],
+    interests: Array.isArray(record.interests) ? record.interests.filter((item) => typeof item === "string").slice(0, 12) : [],
+    acornEvents: Array.isArray(record.acornEvents) ? record.acornEvents.slice(-500) : [],
+    owned: Array.isArray(record.owned) ? record.owned.filter((item) => typeof item === "string") : [],
+    wearing: record.wearing && typeof record.wearing === "object" ? record.wearing : {},
   };
 }
 
@@ -63,7 +89,7 @@ export function importProgress(text: string): Progress {
     throw new Error("That file is not JSON.");
   }
   try {
-    return normalize(parsed);
+    return normalizeProgress(parsed);
   } catch {
     throw new Error("That file is not a Lumi backup.");
   }
@@ -85,7 +111,7 @@ export function applyAttempt(
     correct: input.correct,
     role: input.role,
   };
-  let next: TopicState = { ...prev, attempts: [...prev.attempts, attempt] };
+  let next: TopicState = { ...prev, attempts: [...prev.attempts, attempt], updatedAt: input.at };
 
   if (wasMastered && input.role === "review") {
     if (input.correct) {
@@ -146,6 +172,7 @@ export function markMastered(progress: Progress, topicId: string, now: number): 
     reviewStage: 0,
     lapses: 0,
     nextReviewAt: now + reviewDelayMs(0),
+    updatedAt: now,
   };
   return { ...progress, topics: { ...progress.topics, [topicId]: next } };
 }

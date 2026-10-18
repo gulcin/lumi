@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import { FooterNote, Shell, Stars, TopBar } from "../components/Chrome";
 import { Lumi } from "../components/Lumi";
-import { levelCopy } from "../lib/adaptive";
+import { acornBalance } from "../lib/acorns";
+import { levelCopy } from "../lib/placement";
+import { PYP_THEMES } from "../lib/pyp";
+import { syncConfigured } from "../lib/syncClient";
 import { speak } from "../lib/speech";
-import { ATTRIBUTION, type Progress } from "../lib/types";
+import { ATTRIBUTION, type Progress, type PypThemeId } from "../lib/types";
+import { BadgeRow } from "../components/Badges";
 
 export function NameScreen({
   speechOn,
@@ -49,6 +53,11 @@ export function HomeScreen({
   onPlay,
   onExplore,
   onGrownups,
+  onTheme,
+  onInterests,
+  onShop,
+  onJournal,
+  onChat,
 }: {
   progress: Progress;
   speechOn: boolean;
@@ -56,6 +65,11 @@ export function HomeScreen({
   onPlay: () => void;
   onExplore: () => void;
   onGrownups: () => void;
+  onTheme: (theme: PypThemeId) => void;
+  onInterests: () => void;
+  onShop: () => void;
+  onJournal: () => void;
+  onChat: () => void;
 }) {
   const name = progress.childName || "friend";
   const continuing = Boolean(progress.active);
@@ -69,18 +83,45 @@ export function HomeScreen({
   return (
     <Shell>
       <TopBar title="Lumi" speechOn={speechOn} onToggleSpeech={onToggleSpeech} onReplay={() => speak(line)} />
-      <Lumi mood="idle" />
+      <Lumi mood="idle" wearing={progress.wearing} />
       <h1>Hi, {name}.</h1>
-      <p className="lede">Little lessons that grow with you, from first steps all the way up.</p>
+      <p className="lede">Six big questions. Lessons that climb as far as you want, with no ceiling.</p>
       <Stars count={progress.stars} />
-      <p className="muted">{mastered === 0 ? "Your first star skill is waiting." : `${mastered} star ${mastered === 1 ? "skill" : "skills"}.`}</p>
-      {progress.placement ? <p className="pill">{levelCopy(progress.placement.level)}</p> : null}
+      <p className="muted">
+        {mastered === 0 ? "Your first star skill is waiting." : `${mastered} star ${mastered === 1 ? "skill" : "skills"}.`} {acornBalance(progress)} acorns.
+      </p>
+      {progress.placement ? <p className="pill">{levelCopy(progress.placement.level, progress.placement.startGrade ?? progress.startGrade)}</p> : null}
+      <BadgeRow progress={progress} />
+      <div className="theme-grid" data-testid="theme-home">
+        {PYP_THEMES.map((theme) => (
+          <button key={theme.id} type="button" className="subject" onClick={() => onTheme(theme.id)}>
+            <strong>
+              {theme.emoji} {theme.name}
+            </strong>
+            <span>{theme.blurb}</span>
+          </button>
+        ))}
+      </div>
       <button type="button" className="primary" data-testid="home-play" onClick={onPlay}>
         {continuing ? "Continue the lesson" : progress.placement ? "Start a lesson" : "Find my level"}
       </button>
       <button type="button" className="secondary" data-testid="home-explore" onClick={onExplore}>
         Explore the map
       </button>
+      <button type="button" className="secondary" onClick={onInterests}>
+        What I love
+      </button>
+      <button type="button" className="secondary" onClick={onShop}>
+        Acorn shop
+      </button>
+      <button type="button" className="secondary" onClick={onJournal}>
+        Show what I made
+      </button>
+      {syncConfigured() ? (
+        <button type="button" className="secondary" data-testid="home-chat" onClick={onChat}>
+          Ask Lumi why
+        </button>
+      ) : null}
       <button type="button" className="text-btn" data-testid="home-grownups" onClick={onGrownups}>
         Grown-ups
       </button>
@@ -101,12 +142,13 @@ export function ReadyScreen({
   onHome: () => void;
 }) {
   const level = progress.placement?.level ?? "growing";
+  const grade = progress.placement?.startGrade ?? progress.startGrade;
   const line =
     level === "emerging"
-      ? "We'll start with gentle steps. When those feel easy, the lessons climb as far as you want."
+      ? `We'll start a little under grade ${grade}, fill any gaps, and climb as far as you want.`
       : level === "growing"
-        ? "You already know a lot. We'll build from there, and keep going upward."
-        : "You are ready for bigger steps. There is no top. We can go as far as you like.";
+        ? `You are close to grade ${grade}. We'll build from there, and keep going upward.`
+        : `You are ready for grade ${grade}. There is no top. We can go as far as you like.`;
   useEffect(() => {
     if (speechOn) speak(line);
   }, [speechOn, line]);

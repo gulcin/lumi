@@ -4,6 +4,7 @@ import { mulberry32 } from "../rng";
 import type { Exercise } from "./types";
 import { tryLiteracy } from "./literacy";
 import { tryMath } from "./math";
+import { tryStoneAge } from "./stoneAge";
 import { tryWorld } from "./world";
 
 export type { Exercise } from "./types";
@@ -32,7 +33,7 @@ export function talkCard(topic: Topic): Exercise {
 }
 
 export function createExercise(topic: Topic, rng: Rng): Exercise {
-  return tryMath(topic, rng) ?? tryLiteracy(topic, rng) ?? tryWorld(topic, rng) ?? talkCard(topic);
+  return tryMath(topic, rng) ?? tryLiteracy(topic, rng) ?? tryStoneAge(topic, rng) ?? tryWorld(topic, rng) ?? talkCard(topic);
 }
 
 export function exerciseFromSeed(topic: Topic, seed: number): Exercise {

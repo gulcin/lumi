@@ -1,17 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buildCatalog } from "./lib/catalog";
 import { hasHandsOn } from "./lib/generators";
-import { placementFromScore, planSession, planTopicPractice } from "./lib/adaptive";
+import { planSession, planTopicPractice } from "./lib/adaptive";
+import { isFamilyCode, normalizeFamilyCode } from "./lib/familyCode";
+import { placementFromScore } from "./lib/placement";
 import { newSessionId, loadProgress, saveProgress } from "./lib/progress";
 import { randomRng } from "./lib/rng";
-import type { Catalog, Progress, Topic } from "./lib/types";
+import { loadSyncMeta, pushProgress, saveSyncMeta, syncConfigured } from "./lib/syncClient";
+import { mergeProgress } from "./lib/syncMerge";
+import type { Catalog, Progress, PypThemeId, Topic } from "./lib/types";
 import { CelebrationScreen } from "./screens/Celebration";
+import { ChatScreen } from "./screens/Chat";
 import { ExploreScreen, TopicPeek } from "./screens/Explore";
 import { GateScreen } from "./screens/Gate";
+import { GrownupPlacementScreen } from "./screens/GrownupPlacement";
 import { HomeScreen, NameScreen, ReadyScreen } from "./screens/Home";
+import { InterestsScreen } from "./screens/Interests";
+import { JournalScreen } from "./screens/Journal";
 import { ParentScreen } from "./screens/Parent";
 import { PlacementScreen } from "./screens/Placement";
 import { SessionScreen } from "./screens/Session";
+import { ShopScreen } from "./screens/Shop";
+import { ThemePathScreen } from "./screens/ThemePath";
 
 type Screen =
   | "loading"
@@ -25,7 +35,13 @@ type Screen =
   | "explore"
   | "peek"
   | "gate"
-  | "parent";
+  | "parent"
+  | "theme"
+  | "interests"
+  | "shop"
+  | "journal"
+  | "chat"
+  | "gplace";
 
 export function App() {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
@@ -33,6 +49,11 @@ export function App() {
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
   const [screen, setScreen] = useState<Screen>("loading");
   const [peek, setPeek] = useState<Topic | null>(null);
+  const [peekBack, setPeekBack] = useState<"explore" | "theme">("explore");
+  const [themeId, setThemeId] = useState<PypThemeId>("where-we-are");
+  const [journalTopic, setJournalTopic] = useState<{ id?: string; name?: string }>({});
+  const [journalGrownup, setJournalGrownup] = useState(false);
+  const kickSync = useRef<() => void>(() => {});
   const e2e = new URLSearchParams(window.location.search).has("e2e");
 
   useEffect(() => {
@@ -58,19 +79,88 @@ export function App() {
     };
   }, []);
 
-  function commit(next: Progress) {
-    saveProgress(next);
-    setProgress(next);
+  useEffect(() => {
+    if (!syncConfigured()) return;
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const fromHash = hash.get("sync");
+    if (fromHash && isFamilyCode(fromHash)) {
+      saveSyncMeta({ ...loadSyncMeta(), familyCode: normalizeFamilyCode(fromHash), dirty: true });
+      const clean = `${window.location.pathname}${window.location.search}`;
+      history.replaceState(null, "", clean);
+    }
+    let timer = 0;
+    let stopped = false;
+    async function flush() {
+      const meta = loadSyncMeta();
+      if (!meta.familyCode || stopped) return;
+      if (typeof navigator !== "undefined" && navigator.onLine === false) {
+        saveSyncMeta({ ...meta, dirty: true, lastError: "Offline. This device will sync when it reconnects." });
+        return;
+      }
+      const local = loadProgress();
+      try {
+        const merged = await pushProgress(local, meta.familyCode);
+        const latest = loadProgress();
+        const finalDoc = latest.deviceUpdatedAt > local.deviceUpdatedAt ? mergeProgress(merged, latest) : merged;
+        saveProgress(finalDoc);
+        if (!stopped) setProgress(finalDoc);
+        saveSyncMeta({
+          ...loadSyncMeta(),
+          familyCode: meta.familyCode,
+          dirty: false,
+          lastError: undefined,
+          lastSyncedAt: Date.now(),
+          status: "Synced.",
+        });
+      } catch (reason) {
+        saveSyncMeta({
+          ...loadSyncMeta(),
+          familyCode: meta.familyCode,
+          dirty: true,
+          lastError: reason instanceof Error ? reason.message : "Sync paused.",
+        });
+      }
+    }
+    function schedule() {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => void flush(), 400);
+    }
+    function onShow() {
+      if (document.visibilityState === "visible") void flush();
+    }
+    function onOnline() {
+      void flush();
+    }
+    kickSync.current = schedule;
+    window.addEventListener("online", onOnline);
+    document.addEventListener("visibilitychange", onShow);
+    void flush();
+    return () => {
+      stopped = true;
+      window.clearTimeout(timer);
+      window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onShow);
+    };
+  }, []);
+
+  function commit(next: Progress, source: "local" | "sync" = "local") {
+    const stamped = source === "sync" ? next : { ...next, deviceUpdatedAt: Date.now() };
+    saveProgress(stamped);
+    setProgress(stamped);
+    if (source === "local" && syncConfigured() && loadSyncMeta().familyCode) {
+      saveSyncMeta({ ...loadSyncMeta(), dirty: true });
+      kickSync.current();
+    }
   }
 
   function toggleSpeech() {
     commit({ ...progress, speechOn: !progress.speechOn });
   }
 
-  function startPath(base: Progress = progress) {
+  function startPath(base: Progress = progress, theme?: string) {
     if (!catalog) return;
     const rng = randomRng();
-    const items = planSession(catalog, base, Date.now(), rng, hasHandsOn);
+    const items = planSession(catalog, base, Date.now(), rng, hasHandsOn, theme);
     if (!items.length) {
       commit({ ...base, active: undefined });
       setScreen("celebrate");
@@ -95,6 +185,7 @@ export function App() {
   function startTopic(topic: Topic) {
     if (!catalog) return;
     const rng = randomRng();
+    setJournalTopic({ id: topic.id, name: topic.name });
     commit({
       ...progress,
       active: {
@@ -152,6 +243,79 @@ export function App() {
         }}
         onExplore={() => setScreen("explore")}
         onGrownups={() => setScreen("gate")}
+        onTheme={(id) => {
+          setThemeId(id);
+          setScreen("theme");
+        }}
+        onInterests={() => setScreen("interests")}
+        onShop={() => setScreen("shop")}
+        onJournal={() => {
+          setJournalGrownup(false);
+          setScreen("journal");
+        }}
+        onChat={() => setScreen("chat")}
+      />
+    );
+  }
+  if (screen === "theme") {
+    return (
+      <ThemePathScreen
+        themeId={themeId}
+        catalog={catalog}
+        progress={progress}
+        speechOn={progress.speechOn}
+        onBack={() => setScreen("home")}
+        onOpen={(topic) => {
+          setPeek(topic);
+          setPeekBack("theme");
+          setScreen("peek");
+        }}
+        onPlay={() => startPath(progress, themeId)}
+      />
+    );
+  }
+  if (screen === "interests") {
+    return (
+      <InterestsScreen
+        progress={progress}
+        speechOn={progress.speechOn}
+        onBack={() => setScreen("home")}
+        onToggle={(id) => {
+          const interests = progress.interests.includes(id)
+            ? progress.interests.filter((item) => item !== id)
+            : [...progress.interests, id].slice(0, 12);
+          commit({ ...progress, interests });
+        }}
+      />
+    );
+  }
+  if (screen === "shop") {
+    return <ShopScreen progress={progress} speechOn={progress.speechOn} onBack={() => setScreen("home")} onProgress={commit} />;
+  }
+  if (screen === "journal") {
+    return (
+      <JournalScreen
+        speechOn={progress.speechOn}
+        grownup={journalGrownup}
+        topicId={journalTopic.id}
+        topicName={journalTopic.name}
+        onBack={() => setScreen(journalGrownup ? "parent" : "home")}
+      />
+    );
+  }
+  if (screen === "chat") {
+    return <ChatScreen progress={progress} speechOn={progress.speechOn} onBack={() => setScreen("home")} />;
+  }
+  if (screen === "gplace") {
+    return (
+      <GrownupPlacementScreen
+        catalog={catalog}
+        progress={progress}
+        onCancel={() => setScreen("parent")}
+        onDone={(next) => {
+          commit(next);
+          setScreen("ready");
+        }}
       />
     );
   }
@@ -161,9 +325,10 @@ export function App() {
         e2e={e2e}
         speechOn={progress.speechOn}
         soundOn={progress.soundOn}
+        startGrade={progress.startGrade}
         onCancel={() => setScreen("home")}
         onFinish={(correct, total) => {
-          const placement = placementFromScore(correct, total, Date.now());
+          const placement = placementFromScore(correct, total, Date.now(), progress.startGrade);
           commit({
             ...progress,
             placement,
@@ -208,6 +373,13 @@ export function App() {
         onHome={() => setScreen("home")}
         onExplore={() => setScreen("explore")}
         onAgain={() => startPath()}
+        onJournal={() => {
+          const last = progress.sessions[0]?.topicIds[0];
+          const topic = last ? catalog.byId.get(last) : undefined;
+          setJournalTopic({ id: topic?.id ?? journalTopic.id ?? "session", name: topic?.name ?? "Today's lesson" });
+          setJournalGrownup(false);
+          setScreen("journal");
+        }}
       />
     );
   }
@@ -220,6 +392,7 @@ export function App() {
         onBack={() => setScreen("home")}
         onOpen={(topic) => {
           setPeek(topic);
+          setPeekBack("explore");
           setScreen("peek");
         }}
       />
@@ -232,7 +405,7 @@ export function App() {
         catalog={catalog}
         progress={progress}
         speechOn={progress.speechOn}
-        onBack={() => setScreen("explore")}
+        onBack={() => setScreen(peekBack)}
         onStart={() => startTopic(peek)}
       />
     );
@@ -247,6 +420,11 @@ export function App() {
       onBack={() => setScreen("home")}
       onProgress={commit}
       onRename={(name) => commit({ ...progress, childName: name, named: true })}
+      onPlacement={() => setScreen("gplace")}
+      onJournal={() => {
+        setJournalGrownup(true);
+        setScreen("journal");
+      }}
     />
   );
 }

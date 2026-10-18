@@ -1,39 +1,56 @@
 import { chromium, devices } from "playwright";
 import { mkdir } from "node:fs/promises";
 
-const base = process.env.LUMI_URL ?? "http://127.0.0.1:4179/?e2e=1";
+const base = process.env.LUMI_URL ?? "http://127.0.0.1:4179/lumi/?e2e=1";
 const outDir = process.env.LUMI_SHOTS ?? "/opt/cursor/artifacts/screenshots";
 
+async function tap(locator) {
+  const handle = await locator.elementHandle();
+  if (!handle) throw new Error("Missing control");
+  await handle.evaluate((el) => el.click());
+  await handle.dispose();
+}
+
 async function answer(page) {
+  const inquiry = page.getByTestId("inquiry-continue");
+  if (await inquiry.count()) await tap(inquiry);
   const exercise = page.getByTestId("exercise");
   await exercise.waitFor({ timeout: 15000 });
   const kind = await exercise.getAttribute("data-kind");
   const token = (await exercise.getAttribute("data-answer")) ?? "";
   if (kind === "number") {
     for (const ch of token) {
-      if (ch === "-") await page.getByTestId("key-neg").click();
-      else if (ch === ".") await page.getByTestId("key-dot").click();
-      else await page.getByTestId(`key-${ch}`).click();
+      if (ch === "-") await tap(page.getByTestId("key-neg"));
+      else if (ch === ".") await tap(page.getByTestId("key-dot"));
+      else await tap(page.getByTestId(`key-${ch}`));
     }
-    await page.getByTestId("key-ok").click();
+    await tap(page.getByTestId("key-ok"));
   } else if (kind === "choice") {
-    await page.locator(`[data-choice-id="${token}"]`).click();
+    await tap(page.locator(`[data-choice-id="${token}"]`));
   } else if (kind === "order") {
-    for (const id of token.split("|")) {
-      await page.locator(`[data-order-id="${id}"]`).click();
-    }
-    await page.getByTestId("order-done").click();
+    for (const id of token.split("|")) await tap(page.locator(`[data-order-id="${id}"]`));
+    await tap(page.getByTestId("order-done"));
   } else {
-    await page.getByTestId("talk-yes").click();
+    await tap(page.getByTestId("talk-yes"));
   }
-  await page.getByTestId("next").click();
+  const reflect = page.getByRole("button", { name: "What did you find out?" });
+  if (await reflect.count()) {
+    await tap(reflect);
+    await tap(page.getByRole("button", { name: "I found out something new" }));
+    return;
+  }
+  await tap(page.getByTestId("next"));
 }
 
 async function finishSession(page) {
-  for (let guard = 0; guard < 12; guard++) {
+  for (let guard = 0; guard < 16; guard++) {
     if (await page.getByTestId("celebration").count()) return;
-    if (await page.getByTestId("exercise").count()) {
+    if ((await page.getByTestId("exercise").count()) || (await page.getByTestId("inquiry-continue").count())) {
       await answer(page);
+      continue;
+    }
+    if (await page.getByTestId("next").count()) {
+      await tap(page.getByTestId("next"));
       continue;
     }
     await page.waitForTimeout(200);
@@ -44,6 +61,7 @@ async function finishSession(page) {
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
   ...devices["iPad Pro 11"],
+  serviceWorkers: "block",
 });
 const page = await context.newPage();
 page.setDefaultTimeout(20000);
@@ -57,6 +75,7 @@ await page.screenshot({ path: `${outDir}/01-child-home.png` });
 await page.getByTestId("home-play").click();
 for (let i = 0; i < 8; i++) await answer(page);
 await page.getByTestId("placement-done").click();
+if (await page.getByTestId("inquiry-continue").count()) await page.getByTestId("inquiry-continue").click();
 await page.getByTestId("exercise").waitFor();
 await page.screenshot({ path: `${outDir}/02-exercise.png` });
 
@@ -68,9 +87,8 @@ await page.screenshot({ path: `${outDir}/03-celebration.png` });
 
 await page.getByRole("button", { name: "Home" }).click();
 await page.getByTestId("home-grownups").click();
-const hold = page.getByTestId("gate-hold");
-await hold.dispatchEvent("pointerdown");
-await page.waitForTimeout(3200);
+await page.getByLabel("Or what is 19 + 8?").fill("27");
+await page.getByRole("button", { name: "Open" }).click();
 await page.getByTestId("parent-root").waitFor();
 await page.getByTestId("mastered-list").waitFor();
 const mastered = await page.getByTestId("mastered-list").innerText();

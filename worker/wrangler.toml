@@ -1,0 +1,19 @@
+name = "lumi-api"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ALLOWED_ORIGIN = "https://gulcin.github.io"
+
+[[rules]]
+type = "Text"
+globs = ["**/*.sql"]
+fallthrough = true
+
+# Optional. After you create a Hyperdrive config for the same Postgres,
+# uncomment this and set the id. The Worker then prefers HYPERDRIVE.connectionString
+# and you can leave DATABASE_URL as a fallback.
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = ""

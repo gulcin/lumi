@@ -5,3 +5,7 @@ The files in vendor/marble/ are the Marble Skill Taxonomy (v1): topics, the prer
 A runtime copy is written to public/data/taxonomy.json when you install or build. That copy keeps the fields Lumi teaches from (name, description, age range, evidence, assessment prompt, subject, domain, type) plus the full dependency graph and cluster summaries. Standards codes and centrality scores are left in the original files only.
 
 Lumi is an independent project and is not made or endorsed by Generative Spark, Inc. or Marble.
+
+Topics in vendor/lumi/ (Stone Age and prehistory) are original additions written for Lumi. They are not part of the Marble taxonomy. They use the same lesson fields so the app can teach them beside the Marble graph.
+
+Theme groups and learner-profile trait names follow the public IB Primary Years Programme names. Lumi's assignment of lessons to themes is an unofficial map. The International Baccalaureate does not endorse Lumi.

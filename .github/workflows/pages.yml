@@ -29,7 +29,10 @@ jobs:
       - run: npm ci
       - name: Test
         run: npm test --if-present
-      - run: npm run build
+      - name: Build
+        run: npm run build
+        env:
+          VITE_LUMI_API_URL: ${{ vars.VITE_LUMI_API_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

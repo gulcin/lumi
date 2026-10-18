@@ -43,6 +43,8 @@ export function buildCatalog(data: TaxonomyFile): Catalog {
     dependents,
     clusters: data.clusters,
     attribution: data.attribution,
+    additionsAttribution: data.additionsAttribution,
+    pypMap: data.pypMap,
     subjects,
     domainsBySubject: domainMap,
   };

@@ -1,0 +1,405 @@
+{
+  "attribution": "Lumi additions: Stone Age and prehistory. Written for Lumi. Not part of the Marble Skill Taxonomy.",
+  "topics": [
+    {
+      "id": "lumi_long_ago",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Long Ago and Today",
+      "description": "Some things in daily life are new, and some ideas are very old. Long ago means a time before the people who are alive now, further back than grandparents and old photos.",
+      "ageRangeStart": 5,
+      "ageRangeEnd": 7,
+      "evidence": [
+        "Sort pictures or objects into long ago and today",
+        "Name one thing that has changed since their grandparents were children",
+        "Say that long ago is further back than their own birthday"
+      ],
+      "assessmentPrompt": "If you asked the child what long ago means, could they give an example of something from the past and something from today?"
+    },
+    {
+      "id": "lumi_prehistory",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "What Is Prehistory",
+      "description": "Prehistory is the long stretch of human time before people wrote things down. We learn about it from objects, bones, and pictures left in the ground, not from books written at the time.",
+      "ageRangeStart": 5,
+      "ageRangeEnd": 8,
+      "evidence": [
+        "Say that prehistory comes before written history",
+        "Explain that there are no diaries from the very first people",
+        "Name an object, rather than a book, as a clue from prehistory"
+      ],
+      "assessmentPrompt": "Could the child explain that prehistory means the time before writing, and that we use objects as clues?"
+    },
+    {
+      "id": "lumi_early_humans",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Early Humans and Where They Lived",
+      "description": "Early humans moved across Africa, Europe, and Asia. They lived in caves and in camps in the open, close to water, stone, and animals they could hunt.",
+      "ageRangeStart": 6,
+      "ageRangeEnd": 8,
+      "evidence": [
+        "Say that early humans lived in more than one part of the world",
+        "Name a cave or a camp as a kind of home",
+        "Give a reason people stayed near water or animals"
+      ],
+      "assessmentPrompt": "Could the child describe where early humans lived and one reason a place was a good camp?"
+    },
+    {
+      "id": "lumi_hunter_gatherers",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Hunter-Gatherers",
+      "description": "For most of prehistory people did not farm. They hunted animals, caught fish, and gathered plants, nuts, and shellfish. They often moved with the seasons.",
+      "ageRangeStart": 6,
+      "ageRangeEnd": 8,
+      "evidence": [
+        "Explain hunting and gathering in their own words",
+        "Name two foods people could find without a farm",
+        "Say why a group might move camp"
+      ],
+      "assessmentPrompt": "Could the child explain how hunter-gatherers got food, and why they did not stay in one field all year?"
+    },
+    {
+      "id": "lumi_first_tools",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "First Tools: Stone, Bone and Wood",
+      "description": "The first tools were made by shaping stone, bone, antler, and wood. A hand axe or a scraper could cut meat, scrape skins, and shape other tools. Stone tools are why this time is called the Stone Age.",
+      "ageRangeStart": 6,
+      "ageRangeEnd": 9,
+      "evidence": [
+        "Name stone, bone, or wood as a tool material",
+        "Give one job a stone tool could do",
+        "Say why this time is called the Stone Age"
+      ],
+      "assessmentPrompt": "Could the child name a Stone Age tool material and one way people used it?"
+    },
+    {
+      "id": "lumi_fire",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Discovering Fire",
+      "description": "Fire changed camp life. People used it to keep warm, to scare off animals, to see in the dark, and later to cook food. Tending a fire took care and teamwork.",
+      "ageRangeStart": 6,
+      "ageRangeEnd": 8,
+      "evidence": [
+        "Name two uses of fire in a camp",
+        "Say that fire needed someone to look after it",
+        "Compare raw food and cooked food in a simple way"
+      ],
+      "assessmentPrompt": "Could the child give two reasons fire mattered to early humans?"
+    },
+    {
+      "id": "lumi_cave_paintings",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Cave Paintings",
+      "description": "People painted animals and signs on cave walls. Famous caves include Lascaux in France and Chauvet in France. The paintings used minerals, charcoal, and brushes made from hair or sticks. They show what people noticed and cared about.",
+      "ageRangeStart": 6,
+      "ageRangeEnd": 9,
+      "evidence": [
+        "Name Lascaux or Chauvet as a painted cave",
+        "Say that many paintings show animals",
+        "Name a material used to make the paint"
+      ],
+      "assessmentPrompt": "Could the child describe what cave painters showed, and name one famous cave?"
+    },
+    {
+      "id": "lumi_ice_age_animals",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Mammoths and Ice Age Animals",
+      "description": "During colder Ice Age times, woolly mammoths, reindeer, bison, and cave bears lived in parts of Europe and Asia. People hunted some of them and painted them. Mammoths later died out.",
+      "ageRangeStart": 5,
+      "ageRangeEnd": 8,
+      "evidence": [
+        "Name a mammoth as an Ice Age animal",
+        "Say one way a mammoth was suited to the cold",
+        "Say that people met these animals long ago"
+      ],
+      "assessmentPrompt": "Could the child name an Ice Age animal and one clue that the climate was cold?"
+    },
+    {
+      "id": "lumi_stone_age_periods",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Old, Middle and New Stone Age",
+      "description": "Historians split the Stone Age into three stretches. The Old Stone Age was the longest, with hunting and gathering. The Middle Stone Age came as the ice retreated and people used more small tools. The New Stone Age brought farming in many places.",
+      "ageRangeStart": 7,
+      "ageRangeEnd": 10,
+      "evidence": [
+        "Name the Old, Middle, and New Stone Age in order",
+        "Match hunting and gathering with the older stretch",
+        "Match farming with the New Stone Age"
+      ],
+      "assessmentPrompt": "Could the child put Old, Middle, and New Stone Age in order and say what changed?"
+    },
+    {
+      "id": "lumi_first_farmers",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "The First Farmers",
+      "description": "In the New Stone Age, the Neolithic, people in some places began to grow wheat and barley and to keep sheep, goats, and cattle. Farming meant storing food and often staying in one village. It did not begin everywhere at the same time.",
+      "ageRangeStart": 7,
+      "ageRangeEnd": 10,
+      "evidence": [
+        "Say that farming means growing food and keeping animals",
+        "Name one crop or animal kept by early farmers",
+        "Give one way village life differed from moving camps"
+      ],
+      "assessmentPrompt": "Could the child explain what the first farmers did, and one change it made to daily life?"
+    },
+    {
+      "id": "lumi_skara_brae",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Skara Brae Village",
+      "description": "Skara Brae is a Neolithic village in Orkney, Scotland. Stone houses were sunk into the ground, with beds and dressers made of stone. A storm uncovered it in 1850. It shows how some farmers lived about 5,000 years ago.",
+      "ageRangeStart": 7,
+      "ageRangeEnd": 10,
+      "evidence": [
+        "Place Skara Brae in Scotland",
+        "Describe a stone house with stone furniture",
+        "Say that the village belonged to farmers, not to people alive today"
+      ],
+      "assessmentPrompt": "Could the child say where Skara Brae is and one thing the houses show about village life?"
+    },
+    {
+      "id": "lumi_stonehenge",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Stonehenge and Standing Stones",
+      "description": "Stonehenge in England is a circle of huge standing stones raised in the New Stone Age and the early Bronze Age. People dragged some stones from far away. Circles like this were meeting places. We still ask what ceremonies happened there.",
+      "ageRangeStart": 7,
+      "ageRangeEnd": 11,
+      "evidence": [
+        "Describe Stonehenge as a circle of large stones",
+        "Say that building it took many people",
+        "Say that historians are still not certain about every use"
+      ],
+      "assessmentPrompt": "Could the child describe Stonehenge and say why moving the stones was hard work?"
+    },
+    {
+      "id": "lumi_bronze_age",
+      "type": "CONCEPTUAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Bronze Age Changes",
+      "description": "After the New Stone Age, people in many places learned to mix copper and tin to make bronze. Bronze made stronger tools and weapons. Trade grew, because tin and copper are not found everywhere. Stone tools did not disappear overnight.",
+      "ageRangeStart": 8,
+      "ageRangeEnd": 11,
+      "evidence": [
+        "Say that bronze is a metal made by mixing copper and tin",
+        "Name one way bronze tools differed from stone tools",
+        "Say that trade helped people get the metals"
+      ],
+      "assessmentPrompt": "Could the child explain what changed when people started to use bronze?"
+    },
+    {
+      "id": "lumi_archaeology",
+      "type": "META",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "How We Know: Archaeology and Artefacts",
+      "description": "Archaeology is the careful study of things people left behind. An artefact is an object people made, such as a flint tool or a pot. Archaeologists record where each object was found. Digging slowly keeps the clues in order.",
+      "ageRangeStart": 6,
+      "ageRangeEnd": 10,
+      "evidence": [
+        "Explain artefact as an object people made",
+        "Say that the place an object is found is part of the clue",
+        "Describe archaeology as careful digging and recording, not treasure hunting"
+      ],
+      "assessmentPrompt": "Could the child explain how archaeologists learn about people who left no writing?"
+    },
+    {
+      "id": "lumi_stone_timeline",
+      "type": "REPRESENTATIONAL",
+      "subject": "History",
+      "domain": "Stone Age",
+      "name": "Stone Age Timeline",
+      "description": "A Stone Age timeline runs from the Old Stone Age, through the Middle and New Stone Age, into the Bronze Age, and then toward the first civilisations that wrote things down. Ancient Egypt's long written history begins after these prehistoric stretches in this story of the past.",
+      "ageRangeStart": 7,
+      "ageRangeEnd": 11,
+      "evidence": [
+        "Order Old Stone Age, New Stone Age, and Bronze Age",
+        "Place hunter-gatherers before farmers on a simple line",
+        "Say that ancient Egypt's written history comes later on the same line"
+      ],
+      "assessmentPrompt": "Could the child put the Stone Age stretches and the Bronze Age in order, and say that ancient Egypt comes later in this story?"
+    }
+  ],
+  "dependencies": [
+    {
+      "topicId": "lumi_prehistory",
+      "prerequisiteId": "lumi_long_ago",
+      "strength": "hard",
+      "reason": "Prehistory is easier once long ago and today are already clear"
+    },
+    {
+      "topicId": "lumi_early_humans",
+      "prerequisiteId": "lumi_prehistory",
+      "strength": "hard",
+      "reason": "Early human homes sit inside the idea of prehistory"
+    },
+    {
+      "topicId": "lumi_hunter_gatherers",
+      "prerequisiteId": "lumi_early_humans",
+      "strength": "hard",
+      "reason": "How people found food builds on knowing they lived in camps and caves"
+    },
+    {
+      "topicId": "lumi_first_tools",
+      "prerequisiteId": "lumi_hunter_gatherers",
+      "strength": "hard",
+      "reason": "Stone tools make sense as the kit of people who hunted and gathered"
+    },
+    {
+      "topicId": "lumi_fire",
+      "prerequisiteId": "lumi_hunter_gatherers",
+      "strength": "hard",
+      "reason": "Camp fires belong with the people who lived by hunting and gathering"
+    },
+    {
+      "topicId": "lumi_fire",
+      "prerequisiteId": "lumi_first_tools",
+      "strength": "soft",
+      "reason": "Tools and fire were both ways camps changed daily work"
+    },
+    {
+      "topicId": "lumi_ice_age_animals",
+      "prerequisiteId": "lumi_hunter_gatherers",
+      "strength": "soft",
+      "reason": "Hunting stories make mammoths easier to place"
+    },
+    {
+      "topicId": "lumi_cave_paintings",
+      "prerequisiteId": "lumi_early_humans",
+      "strength": "hard",
+      "reason": "Cave art comes after knowing people used caves"
+    },
+    {
+      "topicId": "lumi_cave_paintings",
+      "prerequisiteId": "lumi_first_tools",
+      "strength": "soft",
+      "reason": "Paint making sits beside other made objects"
+    },
+    {
+      "topicId": "lumi_stone_age_periods",
+      "prerequisiteId": "lumi_prehistory",
+      "strength": "hard",
+      "reason": "The three Stone Age stretches are a way of organising prehistory"
+    },
+    {
+      "topicId": "lumi_stone_age_periods",
+      "prerequisiteId": "lumi_first_tools",
+      "strength": "hard",
+      "reason": "The name Stone Age comes from the tools people made"
+    },
+    {
+      "topicId": "lumi_first_farmers",
+      "prerequisiteId": "lumi_stone_age_periods",
+      "strength": "hard",
+      "reason": "Farming is the big change that marks the New Stone Age"
+    },
+    {
+      "topicId": "lumi_skara_brae",
+      "prerequisiteId": "lumi_first_farmers",
+      "strength": "hard",
+      "reason": "Skara Brae was a village of farmers"
+    },
+    {
+      "topicId": "lumi_stonehenge",
+      "prerequisiteId": "lumi_first_farmers",
+      "strength": "hard",
+      "reason": "Stonehenge was raised by New Stone Age communities"
+    },
+    {
+      "topicId": "lumi_stonehenge",
+      "prerequisiteId": "lumi_skara_brae",
+      "strength": "soft",
+      "reason": "Another stone village from the same broad time helps the comparison"
+    },
+    {
+      "topicId": "lumi_bronze_age",
+      "prerequisiteId": "lumi_first_farmers",
+      "strength": "hard",
+      "reason": "Bronze Age changes come after farming villages were established"
+    },
+    {
+      "topicId": "lumi_bronze_age",
+      "prerequisiteId": "lumi_first_tools",
+      "strength": "soft",
+      "reason": "Metal tools are easier to compare when stone tools are familiar"
+    },
+    {
+      "topicId": "lumi_archaeology",
+      "prerequisiteId": "lumi_prehistory",
+      "strength": "hard",
+      "reason": "Archaeology answers how we know about a time before writing"
+    },
+    {
+      "topicId": "lumi_archaeology",
+      "prerequisiteId": "lumi_cave_paintings",
+      "strength": "soft",
+      "reason": "Painted caves are a clear example of evidence in place"
+    },
+    {
+      "topicId": "lumi_stone_timeline",
+      "prerequisiteId": "lumi_stone_age_periods",
+      "strength": "hard",
+      "reason": "A timeline needs the three Stone Age stretches in order"
+    },
+    {
+      "topicId": "lumi_stone_timeline",
+      "prerequisiteId": "lumi_bronze_age",
+      "strength": "hard",
+      "reason": "The line continues into bronze before later civilisations"
+    },
+    {
+      "topicId": "lumi_stone_timeline",
+      "prerequisiteId": "lumi_archaeology",
+      "strength": "soft",
+      "reason": "Dates on the line rest on artefacts and where they were found"
+    },
+    {
+      "topicId": "mt_C3eNLQJlgt",
+      "prerequisiteId": "lumi_stone_timeline",
+      "strength": "hard",
+      "reason": "Egyptian timelines sit after the Stone Age and Bronze Age on the story of the past"
+    },
+    {
+      "topicId": "mt_pTz6u49fQt",
+      "prerequisiteId": "lumi_stone_timeline",
+      "strength": "soft",
+      "reason": "Placing ancient Egypt is clearer once the Stone Age timeline comes first"
+    }
+  ],
+  "clusters": [
+    {
+      "subject": "History",
+      "domain": "Stone Age",
+      "ageRangeStart": 5,
+      "summary": "A Lumi addition, not a Marble topic: the time before writing, from the first camps and stone tools through fire, cave art, and Ice Age animals."
+    },
+    {
+      "subject": "History",
+      "domain": "Stone Age",
+      "ageRangeStart": 8,
+      "summary": "A Lumi addition: farming, Skara Brae, Stonehenge, bronze, and how archaeology puts the Stone Age in order before ancient Egypt."
+    }
+  ]
+}

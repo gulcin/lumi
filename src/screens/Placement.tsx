@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Shell, TopBar } from "../components/Chrome";
 import { ExerciseView } from "../components/ExerciseView";
 import { Lumi } from "../components/Lumi";
-import { PLACEMENT_ITEMS } from "../lib/placement";
+import { placementItems } from "../lib/placement";
 import { exerciseSpeak } from "../lib/generators/types";
 import { chime, speak } from "../lib/speech";
 
@@ -10,19 +10,22 @@ export function PlacementScreen({
   e2e,
   speechOn,
   soundOn,
+  startGrade,
   onCancel,
   onFinish,
 }: {
   e2e: boolean;
   speechOn: boolean;
   soundOn: boolean;
+  startGrade: number;
   onCancel: () => void;
   onFinish: (correct: number, total: number) => void;
 }) {
+  const items = placementItems(startGrade);
   const [index, setIndex] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [feedback, setFeedback] = useState<{ ok: boolean; explain: string } | null>(null);
-  const exercise = PLACEMENT_ITEMS[index];
+  const exercise = items[index];
   const line = feedback ? feedback.explain : exercise ? exerciseSpeak(exercise) : "";
 
   useEffect(() => {
@@ -34,8 +37,8 @@ export function PlacementScreen({
   return (
     <Shell>
       <TopBar title="Finding your level" onBack={onCancel} speechOn={speechOn} onReplay={() => speak(line)} />
-      <div className="pips" aria-label={`Question ${index + 1} of ${PLACEMENT_ITEMS.length}`}>
-        {PLACEMENT_ITEMS.map((item, i) => (
+      <div className="pips" aria-label={`Question ${index + 1} of ${items.length}`}>
+        {items.map((item, i) => (
           <span key={item.id} className={i < index ? "on" : i === index ? "now" : ""} />
         ))}
       </div>
@@ -51,14 +54,14 @@ export function PlacementScreen({
               data-testid="next"
               onClick={() => {
                 const next = index + 1;
-                if (next >= PLACEMENT_ITEMS.length) onFinish(correct, PLACEMENT_ITEMS.length);
+                if (next >= items.length) onFinish(correct, items.length);
                 else {
                   setIndex(next);
                   setFeedback(null);
                 }
               }}
             >
-              {index + 1 >= PLACEMENT_ITEMS.length ? "See where we start" : "Next"}
+              {index + 1 >= items.length ? "See where we start" : "Next"}
             </button>
           </div>
         ) : (

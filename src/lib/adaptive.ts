@@ -1,4 +1,5 @@
 import type { Catalog, Edge, Placement, PlannedItem, Progress, Topic, TopicState, TopicStatus } from "./types";
+import { interestBoost } from "./interests";
 import { isReviewDue } from "./mastery";
 import type { Rng } from "./rng";
 
@@ -14,10 +15,31 @@ export type UnlockDetail = {
 const FOCUS_SIZE = 4;
 const SESSION_TARGET = 8;
 
-export function prereqSatisfied(prereqId: string, catalog: Catalog, progress: Progress): boolean {
+/** Two or more recent tries, mostly wrong, and not yet mastered. */
+export function hasStruggleGap(progress: Progress, topicId: string): boolean {
+  const state = progress.topics[topicId];
+  if (!state || state.mastered) return false;
+  const recent = state.attempts.slice(-4);
+  if (recent.length < 2) return false;
+  const correct = recent.filter((attempt) => attempt.correct).length;
+  return correct / recent.length < 0.5;
+}
+
+/** A hard prerequisite that was only assumed by age, pulled back in because a later topic is shaky. */
+export function isGapFiller(topic: Topic, catalog: Catalog, progress: Progress): boolean {
+  if (progress.topics[topic.id]?.mastered) return false;
+  for (const edge of catalog.dependents.get(topic.id) ?? []) {
+    if (edge.strength !== "hard") continue;
+    if (hasStruggleGap(progress, edge.topicId)) return true;
+  }
+  return false;
+}
+
+export function prereqSatisfied(prereqId: string, catalog: Catalog, progress: Progress, forTopicId?: string): boolean {
   if (progress.topics[prereqId]?.mastered) return true;
   const topic = catalog.byId.get(prereqId);
   if (!topic) return true;
+  if (forTopicId && hasStruggleGap(progress, forTopicId)) return false;
   const floor = progress.placement?.assumedThroughAge;
   if (floor != null && topic.ageRangeEnd <= floor) return true;
   return false;
@@ -30,7 +52,7 @@ export function isAssumedEarlier(topic: Topic, placement: Placement | undefined)
 
 export function isUnlocked(topic: Topic, catalog: Catalog, progress: Progress): boolean {
   const hard = catalog.hardByTopic.get(topic.id) ?? [];
-  return hard.every((edge) => prereqSatisfied(edge.prerequisiteId, catalog, progress));
+  return hard.every((edge) => prereqSatisfied(edge.prerequisiteId, catalog, progress, topic.id));
 }
 
 /** Highest age already in reach. Placement sets it; mastered skills raise it. There is no cap. */
@@ -76,6 +98,7 @@ export function scoreTopic(
   }
   score -= Math.abs(topic.ageRangeStart - (frontier - 1)) * 2.5;
   if (topic.ageRangeStart > frontier) score -= (topic.ageRangeStart - frontier) * 6;
+  score += interestBoost(topic, progress.interests);
   score += rng() * 3;
   return score;
 }
@@ -86,7 +109,7 @@ function practicePool(catalog: Catalog, progress: Progress, frontier: number, ex
   for (const topic of catalog.topics) {
     const state = progress.topics[topic.id];
     if (state?.mastered) continue;
-    if (isAssumedEarlier(topic, progress.placement) && !state?.attempts.length) continue;
+    if (isAssumedEarlier(topic, progress.placement) && !state?.attempts.length && !isGapFiller(topic, catalog, progress)) continue;
     if (!isUnlocked(topic, catalog, progress)) continue;
     if (topic.ageRangeStart > ceiling) continue;
     pool.push(topic);
@@ -144,6 +167,7 @@ export function planSession(
   now: number,
   rng: Rng,
   hasHandsOn: (topic: Topic) => boolean,
+  themeId?: string,
 ): PlannedItem[] {
   if (!progress.placement) return [];
   const frontier = frontierEnd(catalog, progress);
@@ -177,7 +201,8 @@ export function planSession(
   );
 
   const subjectOrder = rotate(catalog.subjects, Math.floor(rng() * catalog.subjects.length));
-  const mixedFresh = mixSubjects(fresh, subjectOrder);
+  const themed = themeId && catalog.pypMap ? fresh.filter((topic) => catalog.pypMap?.topics[topic.id]?.theme === themeId) : [];
+  const mixedFresh = mixSubjects(themed.length >= 2 ? [...themed, ...fresh.filter((topic) => !themed.includes(topic))] : fresh, subjectOrder);
 
   const focus: { topic: Topic; role: PlannedItem["role"] }[] = [];
   const seen = new Set<string>();
@@ -254,12 +279,12 @@ export function explainTopic(topic: Topic, catalog: Catalog, progress: Progress)
   const hard = hardEdges.map((edge) => ({
     edge,
     topic: catalog.byId.get(edge.prerequisiteId),
-    met: prereqSatisfied(edge.prerequisiteId, catalog, progress),
+    met: prereqSatisfied(edge.prerequisiteId, catalog, progress, topic.id),
   }));
   const soft = softEdges.map((edge) => ({
     edge,
     topic: catalog.byId.get(edge.prerequisiteId),
-    met: prereqSatisfied(edge.prerequisiteId, catalog, progress),
+    met: prereqSatisfied(edge.prerequisiteId, catalog, progress, topic.id),
   }));
   const blockedReasons = hard
     .filter((item) => !item.met)
@@ -336,22 +361,23 @@ export function subjectTallies(catalog: Catalog, progress: Progress): { subject:
   return [...rows.values()];
 }
 
-export function placementFromScore(correct: number, total: number, now: number): Placement {
-  if (correct <= Math.floor(total * 0.25)) {
-    return { level: "emerging", bandStart: 5, bandEnd: 6, assumedThroughAge: 4, correct, total, at: now };
-  }
-  if (correct <= Math.floor(total * 0.62)) {
-    return { level: "growing", bandStart: 6, bandEnd: 7, assumedThroughAge: 5, correct, total, at: now };
-  }
-  return { level: "ready", bandStart: 6, bandEnd: 8, assumedThroughAge: 6, correct, total, at: now };
-}
-
-export function levelCopy(level: Placement["level"]): string {
-  if (level === "emerging") return "Starting with the earliest steps, then climbing as far as she goes.";
-  if (level === "growing") return "Building on early skills, with the path open all the way up.";
-  return "Ready for bigger steps around age 7, and onward with no age cap.";
-}
-
 export function attemptCount(state: TopicState | undefined): number {
   return state?.attempts.length ?? 0;
+}
+
+export type JourneyState = "mastered" | "working" | "coming";
+
+export const JOURNEY_LABEL: Record<JourneyState, string> = {
+  mastered: "Mastered",
+  working: "Lumi's working on",
+  coming: "Coming up",
+};
+
+/** Three states for the child map: already in place, on the frontier, or later. */
+export function journeyState(topic: Topic, catalog: Catalog, progress: Progress): JourneyState {
+  const status = topicStatus(topic, catalog, progress);
+  if (status === "mastered" || status === "earlier") return "mastered";
+  if (status === "practicing" || isGapFiller(topic, catalog, progress)) return "working";
+  if (status === "ready" && progress.placement && topic.ageRangeStart <= frontierEnd(catalog, progress) + 1) return "working";
+  return "coming";
 }

@@ -11,6 +11,7 @@ export function CelebrationScreen({
   onHome,
   onAgain,
   onExplore,
+  onJournal,
 }: {
   catalog: Catalog;
   progress: Progress;
@@ -18,6 +19,7 @@ export function CelebrationScreen({
   onHome: () => void;
   onAgain: () => void;
   onExplore: () => void;
+  onJournal?: () => void;
 }) {
   const session = progress.sessions[0];
   const names = (session?.masteredTopicIds ?? [])
@@ -57,6 +59,11 @@ export function CelebrationScreen({
       <button type="button" className="secondary" onClick={onExplore}>
         Explore the map
       </button>
+      {onJournal ? (
+        <button type="button" className="secondary" onClick={onJournal}>
+          Show what you made
+        </button>
+      ) : null}
       <button type="button" className="ghost" onClick={onHome}>
         Home
       </button>

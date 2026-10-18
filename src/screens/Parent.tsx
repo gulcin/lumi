@@ -1,18 +1,16 @@
 import { useMemo, useState } from "react";
 import { FooterNote, Shell, TopBar } from "../components/Chrome";
 import { ageLabel, clusterBlurb } from "../lib/catalog";
-import {
-  explainTopic,
-  frontierEnd,
-  levelCopy,
-  subjectTallies,
-  topicStatus,
-  upcomingLocked,
-  whatsNext,
-} from "../lib/adaptive";
+import { explainTopic, frontierEnd, subjectTallies, topicStatus, upcomingLocked, whatsNext, JOURNEY_LABEL, journeyState } from "../lib/adaptive";
 import { hasHandsOn } from "../lib/generators";
+import { clampGrade, gradeAnchorAge, levelCopy, placementFromScore, MIN_START_GRADE, MAX_START_GRADE } from "../lib/placement";
 import { exportProgress, importProgress } from "../lib/progress";
+import { syncConfigured } from "../lib/syncClient";
 import { ATTRIBUTION, type Catalog, type Progress, type Topic } from "../lib/types";
+import { INTERESTS } from "../lib/interests";
+import { PYP_NOTE, themeOf } from "../lib/pyp";
+import { SyncPanel } from "./SyncPanel";
+import { ChatLog, ThemeProgress, TodayPanel } from "./ParentExtra";
 
 export function ParentScreen({
   catalog,
@@ -20,41 +18,66 @@ export function ParentScreen({
   onBack,
   onProgress,
   onRename,
+  onPlacement,
+  onJournal,
 }: {
   catalog: Catalog;
   progress: Progress;
   onBack: () => void;
   onProgress: (progress: Progress) => void;
   onRename: (name: string) => void;
+  onPlacement: () => void;
+  onJournal: () => void;
 }) {
-  const [tab, setTab] = useState<"overview" | "map" | "history" | "backup">("overview");
+  const [tab, setTab] = useState<"overview" | "themes" | "today" | "map" | "history" | "backup">("overview");
+  const tabs = [
+    ["overview", "Overview"],
+    ["themes", "PYP themes"],
+    ["today", "Today"],
+    ["map", "Prerequisite map"],
+    ["history", "Sessions"],
+    ["backup", "Backup"],
+  ] as const;
   return (
     <Shell wide>
       <TopBar title="Grown-up view" onBack={onBack} />
       <div className="tabs" role="tablist">
-        {(
-          [
-            ["overview", "Overview"],
-            ["map", "Prerequisite map"],
-            ["history", "Sessions"],
-            ["backup", "Backup"],
-          ] as const
-        ).map(([id, label]) => (
+        {tabs.map(([id, label]) => (
           <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "chip chip-on" : "chip"} onClick={() => setTab(id)}>
             {label}
           </button>
         ))}
       </div>
-      {tab === "overview" ? <Overview catalog={catalog} progress={progress} /> : null}
+      {tab === "overview" ? <Overview catalog={catalog} progress={progress} onProgress={onProgress} onPlacement={onPlacement} /> : null}
+      {tab === "themes" ? <ThemeProgress catalog={catalog} progress={progress} /> : null}
+      {tab === "today" ? <TodayPanel catalog={catalog} progress={progress} /> : null}
       {tab === "map" ? <MapView catalog={catalog} progress={progress} onProgress={onProgress} /> : null}
-      {tab === "history" ? <History catalog={catalog} progress={progress} /> : null}
+      {tab === "history" ? (
+        <>
+          <History catalog={catalog} progress={progress} />
+          <ChatLog progress={progress} />
+          <button type="button" className="secondary" onClick={onJournal}>
+            Photo journal on this device
+          </button>
+        </>
+      ) : null}
       {tab === "backup" ? <Backup progress={progress} onProgress={onProgress} onRename={onRename} /> : null}
       <FooterNote text={ATTRIBUTION} />
     </Shell>
   );
 }
 
-function Overview({ catalog, progress }: { catalog: Catalog; progress: Progress }) {
+function Overview({
+  catalog,
+  progress,
+  onProgress,
+  onPlacement,
+}: {
+  catalog: Catalog;
+  progress: Progress;
+  onProgress: (progress: Progress) => void;
+  onPlacement: () => void;
+}) {
   const tallies = subjectTallies(catalog, progress);
   const next = whatsNext(catalog, progress, hasHandsOn, 5);
   const locked = upcomingLocked(catalog, progress, 4);
@@ -64,16 +87,61 @@ function Overview({ catalog, progress }: { catalog: Catalog; progress: Progress 
       <h1>{progress.childName}'s path</h1>
       {progress.placement ? (
         <>
-          <p className="lede">{levelCopy(progress.placement.level)}</p>
+          <p className="lede">{levelCopy(progress.placement.level, progress.placement.startGrade ?? progress.startGrade)}</p>
           <p className="muted">
             Warm-up: {progress.placement.correct} of {progress.placement.total}. Skills wholly at or below age{" "}
-            {progress.placement.assumedThroughAge} are treated as already in place, so practice can start near age 7.
-            Frontier age is {frontier}. Mastery raises it with no cap.
+            {progress.placement.assumedThroughAge} are treated as already in place. The path starts near grade{" "}
+            {progress.startGrade} (about age {gradeAnchorAge(progress.startGrade)}). If a later lesson is shaky, its
+            missing prerequisites come back into practice. Frontier age is {frontier}. Mastery raises it with no cap.
           </p>
         </>
       ) : (
         <p>No warm-up yet. The map below still lists the whole curriculum.</p>
       )}
+      <label className="field">
+        Starting grade
+        <select
+          data-testid="start-grade"
+          value={progress.startGrade}
+          onChange={(event) => {
+            const startGrade = clampGrade(Number(event.target.value));
+            const placement = progress.placement
+              ? placementFromScore(progress.placement.correct, progress.placement.total, Date.now(), startGrade)
+              : undefined;
+            onProgress({ ...progress, startGrade, placement });
+          }}
+        >
+          {Array.from({ length: MAX_START_GRADE - MIN_START_GRADE + 1 }, (_, index) => MIN_START_GRADE + index).map((grade) => (
+            <option key={grade} value={grade}>
+              Grade {grade} · about age {gradeAnchorAge(grade)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <button type="button" className="secondary" onClick={onPlacement}>
+        Grown-up starting check
+      </button>
+      <h2>Interests</h2>
+      <p className="tiny muted">These steer the next lesson inside the current frontier. They never skip a prerequisite.</p>
+      <div className="domain-row">
+        {INTERESTS.map((interest) => {
+          const on = progress.interests.includes(interest.id);
+          return (
+            <button
+              key={interest.id}
+              type="button"
+              className={on ? "chip chip-on" : "chip"}
+              onClick={() => {
+                const interests = on ? progress.interests.filter((id) => id !== interest.id) : [...progress.interests, interest.id].slice(0, 12);
+                onProgress({ ...progress, interests });
+              }}
+            >
+              {interest.emoji} {interest.label}
+            </button>
+          );
+        })}
+      </div>
+      <p className="tiny muted">{PYP_NOTE}</p>
       <div className="tallies">
         {tallies.map((row) => (
           <article key={row.subject} className="card">
@@ -169,6 +237,12 @@ function MapView({
   const selected = selectedId ? catalog.byId.get(selectedId) : rows[0];
 
   return (
+    <>
+      <div className="legend" aria-label="Skill map legend">
+        <span className="status status-mastered">{JOURNEY_LABEL.mastered}</span>
+        <span className="status status-practicing">{JOURNEY_LABEL.working}</span>
+        <span className="status status-later">{JOURNEY_LABEL.coming}</span>
+      </div>
     <section className="map-layout">
       <div>
         <label className="field">
@@ -217,16 +291,16 @@ function MapView({
         </p>
         <div className="topic-list">
           {rows.slice(0, limit).map((topic) => {
-            const status = topicStatus(topic, catalog, progress);
+            const state = journeyState(topic, catalog, progress);
             return (
               <button key={topic.id} type="button" className={selected?.id === topic.id ? "topic-row on" : "topic-row"} onClick={() => setSelectedId(topic.id)}>
                 <span>
                   <strong>{topic.name}</strong>
                   <small>
-                    {topic.domain} · {ageLabel(topic)}
+                    {topic.domain} · {ageLabel(topic)} · {themeOf(catalog, topic.id)}
                   </small>
                 </span>
-                <em className={`status status-${status}`}>{status}</em>
+                <em className={`status status-${state === "mastered" ? "mastered" : state === "working" ? "practicing" : "later"}`}>{JOURNEY_LABEL[state]}</em>
               </button>
             );
           })}
@@ -239,6 +313,7 @@ function MapView({
       </div>
       {selected ? <TopicDetail topic={selected} catalog={catalog} progress={progress} onProgress={onProgress} onSelect={setSelectedId} /> : null}
     </section>
+    </>
   );
 }
 
@@ -391,7 +466,17 @@ function Backup({
   return (
     <section>
       <h2>Backup</h2>
-      <p>Progress lives in this browser only. Export a file to keep a copy, or move it to another device.</p>
+      {syncConfigured() ? (
+        <SyncPanel
+          progress={progress}
+          onJoin={(code, childKey) => {
+            onProgress(childKey ? { ...progress, childKey } : progress);
+            void code;
+          }}
+        />
+      ) : (
+        <p>Progress lives in this browser only. Export a file to keep a copy, or move it to another device.</p>
+      )}
       <button
         type="button"
         className="primary"

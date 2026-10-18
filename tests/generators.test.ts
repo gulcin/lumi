@@ -136,11 +136,14 @@ describe("full taxonomy coverage", () => {
       if (exercise.generatorId === "talk") row.talk += 1;
       else row.hands += 1;
     }
-    expect(catalog.topics).toHaveLength(1590);
+    const marble = catalog.topics.filter((topic) => !topic.id.startsWith("lumi_"));
+    const added = catalog.topics.filter((topic) => topic.id.startsWith("lumi_"));
+    expect(marble).toHaveLength(1590);
+    expect(added.length).toBeGreaterThan(0);
     expect(catalog.subjects).toHaveLength(8);
     const hands = Object.values(bySubject).reduce((sum, row) => sum + row.hands, 0);
     const talk = Object.values(bySubject).reduce((sum, row) => sum + row.talk, 0);
-    expect(hands + talk).toBe(1590);
+    expect(hands + talk).toBe(catalog.topics.length);
     expect(bySubject.Mathematics?.hands).toBeGreaterThan(350);
     expect(bySubject.English?.hands).toBeGreaterThan(120);
     console.log("generator coverage", bySubject);

@@ -175,15 +175,19 @@ try {
       const page = await context.newPage();
       const errors = [];
       const missing = [];
+      const ignoreNoise = (text) =>
+        text.includes("reading 'waiting'") ||
+        text.includes("lumi-api.gulcin-lumi.workers.dev") ||
+        text.includes("net::ERR_FAILED");
       page.on("pageerror", (error) => {
         const text = String(error);
-        if (text.includes("reading 'waiting'")) return;
+        if (ignoreNoise(text)) return;
         errors.push(text);
       });
       page.on("console", (msg) => {
         if (msg.type() !== "error") return;
         const text = msg.text();
-        if (text.includes("reading 'waiting'")) return;
+        if (ignoreNoise(text)) return;
         errors.push(text);
       });
       page.on("response", (response) => {

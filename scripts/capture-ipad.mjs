@@ -143,6 +143,7 @@ await writeFile(file, png);
 await page.getByLabel("A few words").fill("A cave painting");
 await page.getByTestId("journal-file").setInputFiles(file);
 await page.getByText("A cave painting").waitFor();
+await page.getByTestId("journal-cheer").waitFor();
 const reminder = await page.locator("body").innerText();
 if (!/face/i.test(reminder)) throw new Error("Journal did not remind the child about faces");
 await shot(page, "07-photo-journal");
@@ -182,6 +183,17 @@ await page.getByTestId("chat-reply").waitFor();
 const reply = await page.getByTestId("chat-reply").innerText();
 if (!reply.includes("animal")) throw new Error("Chat reply did not come back");
 await shot(page, "11-voice-chat");
+
+await page.getByRole("button", { name: "Back", exact: true }).click();
+await page.getByTestId("home-play").click();
+await page.getByLabel("Or what is 19 + 8?").fill("27");
+await page.getByRole("button", { name: "Open" }).click();
+await page.getByTestId("grownup-placement").waitFor();
+const yeps = page.getByRole("button", { name: "Yep", exact: true });
+const count = await yeps.count();
+for (let i = 0; i < count; i += 1) await yeps.nth(i).click();
+if (!/Yep/.test(await page.locator("body").innerText())) throw new Error("Grown-up placement did not show Yep");
+await shot(page, "12-grownup-placement");
 
 console.log("Captured iPad flows in", outDir);
 await browser.close();

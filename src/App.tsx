@@ -53,6 +53,7 @@ export function App() {
   const [themeId, setThemeId] = useState<PypThemeId>("where-we-are");
   const [journalTopic, setJournalTopic] = useState<{ id?: string; name?: string }>({});
   const [journalGrownup, setJournalGrownup] = useState(false);
+  const [afterGate, setAfterGate] = useState<"parent" | "gplace">("parent");
   const kickSync = useRef<() => void>(() => {});
   const e2e = new URLSearchParams(window.location.search).has("e2e");
 
@@ -238,11 +239,17 @@ export function App() {
         onToggleSpeech={toggleSpeech}
         onPlay={() => {
           if (progress.active) setScreen("session");
-          else if (!progress.placement) setScreen("placement");
-          else startPath();
+          else if (!progress.placement) {
+            setAfterGate("gplace");
+            setScreen("gate");
+          } else startPath();
         }}
+        onWarmup={() => setScreen("placement")}
         onExplore={() => setScreen("explore")}
-        onGrownups={() => setScreen("gate")}
+        onGrownups={() => {
+          setAfterGate("parent");
+          setScreen("gate");
+        }}
         onTheme={(id) => {
           setThemeId(id);
           setScreen("theme");
@@ -304,7 +311,9 @@ export function App() {
     );
   }
   if (screen === "chat") {
-    return <ChatScreen progress={progress} speechOn={progress.speechOn} onBack={() => setScreen("home")} />;
+    const hintId = progress.active?.items[progress.active.index]?.topicId ?? progress.sessions[0]?.topicIds[0];
+    const topicHint = hintId ? catalog.byId.get(hintId)?.name : undefined;
+    return <ChatScreen progress={progress} speechOn={progress.speechOn} topicHint={topicHint} onBack={() => setScreen("home")} />;
   }
   if (screen === "gplace") {
     return (
@@ -411,7 +420,13 @@ export function App() {
     );
   }
   if (screen === "gate") {
-    return <GateScreen speechOn={progress.speechOn} onCancel={() => setScreen("home")} onOpen={() => setScreen("parent")} />;
+    return (
+      <GateScreen
+        speechOn={progress.speechOn}
+        onCancel={() => setScreen("home")}
+        onOpen={() => setScreen(afterGate)}
+      />
+    );
   }
   return (
     <ParentScreen

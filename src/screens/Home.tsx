@@ -51,6 +51,7 @@ export function HomeScreen({
   speechOn,
   onToggleSpeech,
   onPlay,
+  onWarmup,
   onExplore,
   onGrownups,
   onTheme,
@@ -63,6 +64,7 @@ export function HomeScreen({
   speechOn: boolean;
   onToggleSpeech: () => void;
   onPlay: () => void;
+  onWarmup: () => void;
   onExplore: () => void;
   onGrownups: () => void;
   onTheme: (theme: PypThemeId) => void;
@@ -103,8 +105,13 @@ export function HomeScreen({
         ))}
       </div>
       <button type="button" className="primary" data-testid="home-play" onClick={onPlay}>
-        {continuing ? "Continue the lesson" : progress.placement ? "Start a lesson" : "Find my level"}
+        {continuing ? "Continue the lesson" : progress.placement ? "Start a lesson" : "Grown-up starting check"}
       </button>
+      {!progress.placement && !continuing ? (
+        <button type="button" className="secondary" data-testid="home-warmup" onClick={onWarmup}>
+          Play a short warm-up
+        </button>
+      ) : null}
       <button type="button" className="secondary" data-testid="home-explore" onClick={onExplore}>
         Explore the map
       </button>

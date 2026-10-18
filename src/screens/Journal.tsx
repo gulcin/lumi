@@ -18,6 +18,7 @@ export function JournalScreen({
 }) {
   const [photos, setPhotos] = useState<JournalPhoto[]>([]);
   const [caption, setCaption] = useState("");
+  const [cheer, setCheer] = useState("");
   const [urls, setUrls] = useState<Record<string, string>>({});
   const line = grownup ? "Photos stay on this device. They are not synced." : FACE_REMINDER;
   useEffect(() => {
@@ -64,13 +65,17 @@ export function JournalScreen({
               createdAt: Date.now(),
               blob,
             };
-            await saveJournalPhoto(photo);
-            setPhotos((current) => [photo, ...current]);
-            setUrls((current) => ({ ...current, [photo.id]: URL.createObjectURL(blob) }));
-            setCaption("");
+                await saveJournalPhoto(photo);
+                setPhotos((current) => [photo, ...current]);
+                setUrls((current) => ({ ...current, [photo.id]: URL.createObjectURL(blob) }));
+                setCaption("");
+                const praise = "I can see what you made. That is a real thing, not only a screen.";
+                setCheer(praise);
+                if (speechOn) speak(praise);
           }}
         />
       </label>
+      {cheer ? <p className="lede" data-testid="journal-cheer">{cheer}</p> : null}
       <div className="journal-grid">
         {photos.length === 0 ? <p className="muted">No photos yet. They stay in this browser and are never uploaded.</p> : null}
         {photos.map((photo) => (

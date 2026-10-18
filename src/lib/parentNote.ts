@@ -61,8 +61,7 @@ function ideasFor(theme: PypThemeId | undefined, topicName: string): string[] {
   return [
     `Visit ${pack.visit}.`,
     `Read ${pack.book} that touches on ${topicName}.`,
-    `At home, ${pack.home}.`,
-    `At dinner, ask: ${pack.dinner}`,
+    `At home, ${pack.home}. Ask at dinner: ${pack.dinner}`,
   ];
 }
 
@@ -95,7 +94,7 @@ export function buildDailyNotes(progress: Progress, catalog: Catalog, timeZone =
     );
     const leadTopic = catalog.byId.get(topicIds[0] ?? "");
     const theme = catalog.pypMap?.topics[leadTopic?.id ?? ""]?.theme;
-    const ideas = ideasFor(theme, leadTopic?.name ?? "today's lesson").slice(0, 3);
+    const ideas = ideasFor(theme, leadTopic?.name ?? "today's lesson");
     const area = areaName(catalog.pypMap?.topics[leadTopic?.id ?? ""]?.area);
     const masteredLine = masteredNames.length ? ` New star skills: ${masteredNames.join(", ")}.` : "";
     const themeLine = themes.length ? ` Themes: ${themes.join("; ")}.` : "";

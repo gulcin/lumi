@@ -28,10 +28,12 @@ function recognition(): SpeechRec | null {
 export function ChatScreen({
   progress,
   speechOn,
+  topicHint,
   onBack,
 }: {
   progress: Progress;
   speechOn: boolean;
+  topicHint?: string;
   onBack: () => void;
 }) {
   const [text, setText] = useState("");
@@ -59,7 +61,7 @@ export function ChatScreen({
     }
     setError("");
     try {
-      const next = await sendChat(code, progress.childKey, cleaned);
+      const next = await sendChat(code, progress.childKey, cleaned, topicHint);
       setReply(next);
       if (speechOn) speak(next);
     } catch (reason) {

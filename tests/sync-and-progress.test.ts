@@ -238,13 +238,25 @@ describe("acorns, notes, interests, grown-up placement", () => {
     expect(note?.narrative).toMatch(/Cave Paintings/);
     expect(note?.themes[0]).toMatch(/Where we are/);
     expect(note?.ideas.length).toBeGreaterThanOrEqual(2);
+    expect(note?.ideas.length).toBeLessThanOrEqual(3);
+    expect(note?.ideas.some((idea) => /dinner/i.test(idea))).toBe(true);
     expect(note?.minutes).toBe(6);
   });
 
   it("weights an interest without treating it as a prerequisite", () => {
     const animals = topic({ id: "mammoth", name: "Mammoths and Ice Age Animals", domain: "Stone Age", ageRangeStart: 6, ageRangeEnd: 8 });
+    const early = topic({ id: "early", name: "Counting", subject: "Mathematics", domain: "Counting & Cardinality", ageRangeStart: 5, ageRangeEnd: 6 });
     const other = topic({ id: "bonds", name: "Number bonds", subject: "Mathematics", domain: "Addition & Subtraction", ageRangeStart: 6, ageRangeEnd: 8 });
     expect(interestBoost(animals, ["animals"])).toBeGreaterThan(interestBoost(other, ["animals"]));
+    const catalog = catalogOf(
+      [early, animals],
+      [{ topicId: "mammoth", prerequisiteId: "early", strength: "hard", reason: "Needs counting" }],
+    );
+    let progress = emptyProgress(1);
+    progress = { ...progress, interests: ["animals"], placement: { level: "ready", bandStart: 8, bandEnd: 9, assumedThroughAge: 4, correct: 8, total: 8, at: 1, startGrade: 3 } };
+    const plan = planSession(catalog, progress, 4, mulberry32(2), () => true).map((item) => item.topicId);
+    expect(plan).not.toContain("mammoth");
+    expect(isUnlocked(animals, catalog, progress)).toBe(false);
   });
 
   it("seeds mastery down the hard graph when a grown-up says yep", () => {

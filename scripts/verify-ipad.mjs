@@ -72,7 +72,9 @@ await page.getByTestId("name-skip").click();
 await page.getByTestId("home-play").waitFor();
 await page.screenshot({ path: `${outDir}/01-child-home.png` });
 
-await page.getByTestId("home-play").click();
+const warmup = page.getByTestId("home-warmup");
+if (await warmup.count()) await warmup.click();
+else await page.getByTestId("home-play").click();
 for (let i = 0; i < 8; i++) await answer(page);
 await page.getByTestId("placement-done").click();
 if (await page.getByTestId("inquiry-continue").count()) await page.getByTestId("inquiry-continue").click();
